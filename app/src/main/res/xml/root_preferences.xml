@@ -1,0 +1,77 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory
+        android:title="基础设置"/>
+
+    <CheckBoxPreference
+        android:title="总开关"
+        android:key="lyricService"
+        android:summary=""/>
+
+    <EditTextPreference
+        android:title="歌词宽度"
+        android:key="lyricWidth"
+        android:summary="35%"/>
+
+    <EditTextPreference
+        android:title="歌词自适应最大宽度"
+        android:key="lyricMaxWidth"
+        android:summary="35%"/>
+
+    <EditTextPreference
+        android:title="歌词颜色 "
+        android:key="lyricColour"
+        android:summary="关闭"/>
+
+    <PreferenceCategory
+        android:title="其他"/>
+
+    <CheckBoxPreference
+        android:title="歌曲暂停关闭歌词"
+        android:key="lyricOff"
+        android:summary=""/>
+
+    <CheckBoxPreference
+        android:title="隐藏通知图标"
+        android:key="hideNoti"
+        android:summary="有歌词自动隐藏通知图标"/>
+
+    <CheckBoxPreference
+        android:title="隐藏实时网速"
+        android:key="hideNetWork"
+        android:summary="有歌词自动隐藏实时网速"/>
+
+    <CheckBoxPreference
+        android:title="隐藏锁屏运营商名称"
+        android:key="hideCUK"
+        android:summary="有歌词自动隐藏锁屏运营商名称"/>
+
+    <PreferenceScreen
+        android:title="重启系统界面"
+        android:key="restartUI"
+        android:summary="lsp激活后需重启系统界面生效，edxp需重启手机"/>
+
+    <PreferenceCategory app:title="关于" />
+
+    <Preference
+        android:key="author"
+        android:summary="GitHub (577fkj)"
+        android:title="开发者" />
+
+    <Preference
+        android:key="Sourcecode"
+        android:summary="https://github.com/577fkj/MIUIStatusBarlyric_new"
+        android:title="项目地址" />
+
+    <Preference
+        android:key="ver_explain"
+        android:summary=""
+        android:title="版本说明" />
+
+    <Preference
+        android:key="reset"
+        android:summary="如果出现某些莫名其妙的问题请点击此处"
+        android:title="重置模块" />
+
+</PreferenceScreen>
