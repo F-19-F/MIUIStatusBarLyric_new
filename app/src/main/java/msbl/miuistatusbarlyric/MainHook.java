@@ -1,5 +1,6 @@
 package msbl.miuistatusbarlyric;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
@@ -22,6 +23,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
+import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -36,17 +40,26 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.core.graphics.ColorUtils;
+
 public class MainHook implements IXposedHookLoadPackage {
     private static final String KEY_LYRIC = "lyric";
     private static String musicName = "";
     private Context context = null;
     private static String lyric = "";
+    private static String iconPath = "";
 
     public static class LyricReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals("Lyric_Server")) {
-                lyric = intent.getStringExtra("Lyric_Data");
+                lyric = " " + intent.getStringExtra("Lyric_Data");
+                Config config = new Config();
+                if ("自动".equals(config.getIcon())) {
+                    iconPath = Utlis.PATH + intent.getStringExtra("Lyric_Icon") + ".png";
+                } else {
+                    iconPath = "";
+                }
             }
         }
     }
@@ -130,6 +143,19 @@ public class MainHook implements IXposedHookLoadPackage {
                         clockLayout.setOrientation(LinearLayout.HORIZONTAL);
                         clockLayout.addView(lyricTextView, 1);
 
+                        // 创建图标
+                        TextView iconView = new TextView(application);
+                        iconView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
+                        LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) iconView.getLayoutParams();
+                        layoutParams.setMargins(0, 2, 0, 0);
+                        iconView.setLayoutParams(layoutParams);
+                        clockLayout.addView(iconView, 1);
+
+                        final Handler iconUpdate = new Handler(message -> {
+                            iconView.setCompoundDrawables((Drawable) message.obj, null, null, null);
+                            return true;
+                        });
+
                         // 歌词更新 Handler
                         Handler LyricUpdate = new Handler(message -> {
                             Config config = new Config();
@@ -168,6 +194,8 @@ public class MainHook implements IXposedHookLoadPackage {
                                 clock.setLayoutParams(new LinearLayout.LayoutParams(0, 0));
                                 return false;
                             }
+                            // 清除图标
+                            iconView.setCompoundDrawables(null, null, null, null);
                             // 显示时钟
                             clock.setLayoutParams(new LinearLayout.LayoutParams(-2, -2));
                             // 歌词隐藏
@@ -185,6 +213,8 @@ public class MainHook implements IXposedHookLoadPackage {
                                     String oldLyric = "";
                                     boolean lyricServer = false;
                                     boolean lyricOff = false;
+                                    String iconReverseColor = "";
+                                    boolean iconReverseColorStatus = false;
 
                                     @Override
                                     public void run() {
@@ -218,6 +248,8 @@ public class MainHook implements IXposedHookLoadPackage {
                                                 config = new Config();
                                                 lyricServer = config.getLyricService();
                                                 if (config.getLyricOff()) lyricOff = audioManager.isMusicActive();
+                                                iconReverseColor = config.getIconReverseColor();
+                                                iconReverseColorStatus = true;
                                             }
                                             if (enable && !lyric.equals("")) {
                                                 // 设置颜色
@@ -229,6 +261,24 @@ public class MainHook implements IXposedHookLoadPackage {
                                                 } else if (!(clock.getTextColors() == null || color == clock.getTextColors())) {
                                                     color = clock.getTextColors();
                                                     lyricTextView.setTextColor(color);
+                                                    iconReverseColorStatus = true;
+                                                }
+                                                if (!iconPath.equals("")) {
+                                                    if (iconReverseColorStatus) {
+                                                        if (new File(iconPath).exists()) {
+                                                            Drawable createFromPath = Drawable.createFromPath(iconPath);
+                                                            createFromPath.setBounds(0, 0, (int) clock.getTextSize(), (int) clock.getTextSize());
+                                                            if (iconReverseColor.equals("白色图标")) {
+                                                                createFromPath = reverseColor(createFromPath, isDark(clock.getTextColors().getDefaultColor()));
+                                                            } else if (iconReverseColor.equals("黑色图标")) {
+                                                                createFromPath = reverseColor(createFromPath, !isDark(clock.getTextColors().getDefaultColor()));
+                                                            }
+                                                            Message obtainMessage2 = iconUpdate.obtainMessage();
+                                                            obtainMessage2.obj = createFromPath;
+                                                            iconUpdate.sendMessage(obtainMessage2);
+                                                        }
+                                                        iconReverseColorStatus = false;
+                                                    }
                                                 }
                                             }
                                             count = 0;
@@ -324,7 +374,7 @@ public class MainHook implements IXposedHookLoadPackage {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         super.afterHookedMethod(param);
-                        sendLyric(context, param.args[0].toString());
+                        sendLyric(context, param.args[0].toString(), "netease");
                         musicName = param.args[0].toString();
                         XposedBridge.log("网易云： " + param.args[0].toString());
                     }
@@ -333,7 +383,7 @@ public class MainHook implements IXposedHookLoadPackage {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                         super.beforeHookedMethod(param);
-                        sendLyric(context, param.args[0].toString());
+                        sendLyric(context, param.args[0].toString(), "netease");
                         XposedBridge.log("网易云： " + param.args[0].toString());
                         param.args[0] = musicName;
                         param.setResult(param.args);
@@ -369,7 +419,7 @@ public class MainHook implements IXposedHookLoadPackage {
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         super.afterHookedMethod(param);
                         XposedBridge.log("酷狗音乐:" + ((HashMap) param.args[0]).values().toArray()[0]);
-                        sendLyric(context, "" + ((HashMap) param.args[0]).values().toArray()[0]);
+                        sendLyric(context, "" + ((HashMap) param.args[0]).values().toArray()[0], "kugou");
                     }
                 });
                 break;
@@ -393,7 +443,7 @@ public class MainHook implements IXposedHookLoadPackage {
                         String str = (String) param.args[0];
                         XposedBridge.log("酷我音乐:" + str);
                         if (param.args[0] != null && !str.equals("") && !str.equals("好音质 用酷我") && !str.equals("正在搜索歌词...") && !str.contains(" - ")) {
-                            sendLyric(context, " " + str);
+                            sendLyric(context, "" + str, "kuwo");
                         }
                         param.setResult(replaceHookedMethod(param));
                     }
@@ -428,7 +478,7 @@ public class MainHook implements IXposedHookLoadPackage {
 
                         XposedBridge.log("qq音乐: " + str);
 
-                        sendLyric(context, str);
+                        sendLyric(context, str, "qqmusic");
                     }
                 });
                 break;
@@ -448,9 +498,26 @@ public class MainHook implements IXposedHookLoadPackage {
         return false;
     }
 
-    public void sendLyric(Context context, String lyric) {
-        context.sendBroadcast(new Intent().setAction("Lyric_Server").putExtra("Lyric_Data", lyric));
+    public void sendLyric(Context context, String lyric, String icon) {
+        context.sendBroadcast(new Intent().setAction("Lyric_Server").putExtra("Lyric_Data", lyric).putExtra("Lyric_Icon", icon));
     }
 
+    private Drawable reverseColor(Drawable icon, Boolean black) {
+        ColorMatrix cm = new ColorMatrix();
+        if (black) {
+            cm.set(new float[]{
+                    -1f, 0f, 0f, 0f, 255f,
+                    0f, -1f, 0f, 0f, 255f,
+                    0f, 0f, -1f, 0f, 255f,
+                    0f, 0f, 0f, 1f, 0f
+            });
+        }
+        icon.setColorFilter(new ColorMatrixColorFilter(cm));
+        return icon;
+    }
+
+    boolean isDark(int color) {
+        return ColorUtils.calculateLuminance(color) < 0.5;
+    }
 
 }

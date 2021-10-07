@@ -20,8 +20,18 @@
         android:summary="35%"/>
 
     <EditTextPreference
-        android:title="歌词颜色 "
+        android:title="歌词颜色"
         android:key="lyricColour"
+        android:summary="关闭"/>
+
+    <ListPreference
+        android:title="图标"
+        android:key="icon"
+        android:summary="关闭"/>
+
+    <ListPreference
+        android:title="反色模式"
+        android:key="iconReverseColor"
         android:summary="关闭"/>
 
     <PreferenceCategory
@@ -63,6 +73,11 @@
         android:key="Sourcecode"
         android:summary="https://github.com/577fkj/MIUIStatusBarlyric_new"
         android:title="项目地址" />
+
+    <Preference
+        android:key="CheckUpdate"
+        android:summary=""
+        android:title="检查更新" />
 
     <Preference
         android:key="ver_explain"

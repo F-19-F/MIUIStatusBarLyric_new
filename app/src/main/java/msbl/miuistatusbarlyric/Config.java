@@ -188,4 +188,36 @@ public class Config {
             return false;
         }
     }
+
+    public void setIcon(String str) {
+        try {
+            this.config.put("Icon", str);
+            setConfig(this.config.toString());
+        } catch (JSONException ignored) {
+        }
+    }
+
+    public String getIcon() {
+        try {
+            return (String) this.config.get("Icon");
+        } catch (JSONException e) {
+            return "关闭";
+        }
+    }
+
+    public void setIconReverseColor(String str) {
+        try {
+            this.config.put("IconReverseColor", str);
+            setConfig(this.config.toString());
+        } catch (JSONException ignored) {
+        }
+    }
+
+    public String getIconReverseColor() {
+        try {
+            return (String) this.config.get("IconReverseColor");
+        } catch (JSONException e) {
+            return "关闭";
+        }
+    }
 }
