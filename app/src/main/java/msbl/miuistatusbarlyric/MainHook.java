@@ -53,7 +53,7 @@ public class MainHook implements IXposedHookLoadPackage {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals("Lyric_Server")) {
-                lyric = " " + intent.getStringExtra("Lyric_Data");
+                lyric = intent.getStringExtra("Lyric_Data");
                 Config config = new Config();
                 if ("自动".equals(config.getIcon())) {
                     iconPath = Utlis.PATH + intent.getStringExtra("Lyric_Icon") + ".png";
@@ -125,11 +125,14 @@ public class MainHook implements IXposedHookLoadPackage {
 
                         // 创建TextView
                         AutoMarqueeTextView lyricTextView = new AutoMarqueeTextView(application);
-                        lyricTextView.setLayoutParams(new LinearLayout.LayoutParams(-2, -2, (float) 19));
+                        lyricTextView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
                         lyricTextView.setWidth((dw * 35) / 100);
                         lyricTextView.setHeight(clock.getHeight());
                         lyricTextView.setTypeface(clock.getTypeface());
                         lyricTextView.setTextSize(0, clock.getTextSize());
+                        LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) lyricTextView.getLayoutParams();
+                        layoutParams.setMargins(10, 0, 0, 0);
+                        lyricTextView.setLayoutParams(layoutParams);
 
                         // 设置跑马灯效果
                         lyricTextView.setSingleLine(true);
@@ -145,8 +148,8 @@ public class MainHook implements IXposedHookLoadPackage {
 
                         // 创建图标
                         TextView iconView = new TextView(application);
-                        iconView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
-                        LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) iconView.getLayoutParams();
+                        iconView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                        layoutParams = (LinearLayout.LayoutParams) iconView.getLayoutParams();
                         layoutParams.setMargins(0, 2, 0, 0);
                         iconView.setLayoutParams(layoutParams);
                         clockLayout.addView(iconView, 1);
