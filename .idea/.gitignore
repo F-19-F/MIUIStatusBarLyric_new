@@ -1,3 +1,6 @@
 # 默认忽略的文件
 /shelf/
 /workspace.xml
+!/misc.xml
+!/runConfigurations.xml
+!/compiler.xml
