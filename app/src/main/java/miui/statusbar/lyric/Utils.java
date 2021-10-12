@@ -20,6 +20,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 
+@SuppressWarnings("ResultOfMethodCallIgnored")
 public class Utils {
     public static String PATH = Environment.getExternalStorageDirectory() + "/Barlyrics/";
 
@@ -201,6 +202,23 @@ public class Utils {
                 Looper.loop();
             }
         }).start();
+    }
+    public static void delete(File file) {
+        if (file.isFile()) {
+            file.delete();
+            return;
+        }
+        if (file.isDirectory()) {
+            File[] childFiles = file.listFiles();
+            if (childFiles == null || childFiles.length == 0) {
+                file.delete();
+                return;
+            }
+            for (File childFile : childFiles) {
+                delete(childFile);
+            }
+            file.delete();
+        }
     }
 
 

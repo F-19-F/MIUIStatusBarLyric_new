@@ -17,27 +17,11 @@ import androidx.preference.*;
 import java.io.File;
 import java.util.Objects;
 
+import static miui.statusbar.lyric.Utils.delete;
 
-@SuppressWarnings("ResultOfMethodCallIgnored")
+
 public class SettingsActivity extends AppCompatActivity {
 
-    public static void delete(File file) {
-        if (file.isFile()) {
-            file.delete();
-            return;
-        }
-        if (file.isDirectory()) {
-            File[] childFiles = file.listFiles();
-            if (childFiles == null || childFiles.length == 0) {
-                file.delete();
-                return;
-            }
-            for (File childFile : childFiles) {
-                delete(childFile);
-            }
-            file.delete();
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
