@@ -1,7 +1,7 @@
 # 酷安来的看这里
 本项目只是为了弄一个免费的状态栏歌词 </br>
 你们爱用不用</br>
-[这里是全功能的版本](https://github.com/577fkj/MIUIStatusBarlyric)</br>
+[这里是全功能的版本](https://github.com/577fkj/MIUIStatusBarlyric)  
 有精力我会继续更新，没精力就让他这样吧</br>
 酷安账号已经申请注销了, 你们爱咋滴咋滴吧</br>
 
