@@ -57,7 +57,7 @@ public class Config {
         try {
             return (Boolean) this.config.get("hideIcons");
         } catch (JSONException e) {
-            return true;
+            return false;
         }
     }
 
@@ -89,7 +89,7 @@ public class Config {
         try {
             return (Integer) this.config.get("LyricWidth");
         } catch (JSONException e) {
-            return 35;
+            return -1;
         }
     }
 
@@ -105,7 +105,7 @@ public class Config {
         try {
             return (Integer) this.config.get("LyricMaxWidth");
         } catch (JSONException e) {
-            return 35;
+            return -1;
         }
     }
 
@@ -122,7 +122,7 @@ public class Config {
         try {
             return (Boolean) this.config.get("LyricOff");
         } catch (JSONException e) {
-            return false;
+            return true;
         }
     }
 
@@ -170,7 +170,7 @@ public class Config {
         try {
             return (Boolean) this.config.get("HideNetSpeed");
         } catch (JSONException e) {
-            return false;
+            return true;
         }
     }
 
@@ -202,7 +202,7 @@ public class Config {
         try {
             return (Boolean) this.config.get("Icon");
         } catch (JSONException e) {
-            return false;
+            return true;
         }
     }
 

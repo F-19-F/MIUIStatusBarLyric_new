@@ -20,13 +20,13 @@ import java.util.Objects;
 import static miui.statusbar.lyric.Utils.delete;
 
 
-public class SettingsActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity {
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.settings_activity);
+        setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
             getSupportFragmentManager()
                     .beginTransaction()
@@ -85,7 +85,6 @@ public class SettingsActivity extends AppCompatActivity {
                 lyricWidth.setSummary("自适应");
             }
             lyricWidth.setDialogMessage("(-1~100，-1为自适应)，当前:" + lyricWidth.getSummary());
-
             lyricWidth.setOnPreferenceChangeListener((preference, newValue) -> {
                 lyricWidth.setSummary(newValue.toString());
                 lyricWidth.setDefaultValue(newValue);
@@ -121,7 +120,6 @@ public class SettingsActivity extends AppCompatActivity {
                 if (newValue.toString().equals("-1")) {
                     lyricMaxWidth.setDialogMessage("(-1~100，-1为关闭，仅在歌词宽度为自适应时生效)，当前:关闭");
                     lyricMaxWidth.setSummary("关闭");
-                    lyricMaxWidth.setDefaultValue("关闭");
                 } else {
                     lyricMaxWidth.setDialogMessage("(-1~100，-1为关闭，仅在歌词宽度为自适应时生效)，当前:" + newValue + "%");
                 }
@@ -334,17 +332,17 @@ public class SettingsActivity extends AppCompatActivity {
                 return true;
             });
 
-            // 项目地址
-            Preference sourcecode = findPreference("Sourcecode");
-            assert sourcecode != null;
-            sourcecode.setOnPreferenceClickListener((preference) -> {
-                Uri uri = Uri.parse("https://github.com/577fkj/MIUIStatusBarlyric_new");
-                Intent intent = new Intent();
-                intent.setAction("android.intent.action.VIEW");
-                intent.setData(uri);
-                startActivity(intent);
-                return true;
-            });
+//            // 项目地址
+//            Preference sourcecode = findPreference("Sourcecode");
+//            assert sourcecode != null;
+//            sourcecode.setOnPreferenceClickListener((preference) -> {
+//                Uri uri = Uri.parse("https://github.com/577fkj/MIUIStatusBarlyric_new");
+//                Intent intent = new Intent();
+//                intent.setAction("android.intent.action.VIEW");
+//                intent.setData(uri);
+//                startActivity(intent);
+//                return true;
+//            });
 
             //            // 检查更新
 //            Preference checkUpdate = findPreference("CheckUpdate");

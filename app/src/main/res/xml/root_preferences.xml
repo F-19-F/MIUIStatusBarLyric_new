@@ -4,6 +4,7 @@
     <CheckBoxPreference
             android:title="隐藏桌面图标"
             android:key="hideIcons"
+            android:defaultValue="false"
             android:summary=""/>
     <PreferenceCategory
             android:title="基础设置"/>
@@ -48,7 +49,7 @@
 
     <CheckBoxPreference
             android:title="隐藏通知图标"
-            android:key="hideNoti"
+            android:key="hideNoticeIcon"
             android:summary="有歌词自动隐藏通知图标"/>
 
     <CheckBoxPreference
@@ -82,7 +83,11 @@
     <Preference
             android:key="Sourcecode"
             android:summary="https://github.com/577fkj/MIUIStatusBarlyric_new"
-            android:title="项目地址"/>
+            android:title="项目地址">
+        <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/577fkj/MIUIStatusBarlyric_new"/>
+    </Preference>
 
     <Preference
             android:key="CheckUpdate"

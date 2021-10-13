@@ -31,18 +31,17 @@
                 android:resource="@array/need_module"/>
 
         <activity
-                android:name=".SettingsActivity"
+                android:name=".MainActivity"
                 android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
-                <action android:name="msbl.statusbarlyric"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="de.robv.android.xposed.category.MODULE_SETTINGS"/>
             </intent-filter>
         </activity>
         <activity-alias android:enabled="true"
                         android:name="miui.statusbar.lyric.launcher"
-                        android:targetActivity=".SettingsActivity">
+                        android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
