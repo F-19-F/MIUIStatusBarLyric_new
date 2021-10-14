@@ -13,7 +13,7 @@ public class Config {
     public static String getConfig() {
         String str = "";
         try {
-            FileInputStream fileInputStream = new FileInputStream(Utils.Config_PATH);
+            FileInputStream fileInputStream = new FileInputStream(Utils.ConfigPATH);
             byte[] bArr = new byte[fileInputStream.available()];
             fileInputStream.read(bArr);
             str = new String(bArr);
@@ -26,7 +26,7 @@ public class Config {
 
     public static void setConfig(String str) {
         try {
-            FileOutputStream fileOutputStream = new FileOutputStream(Utils.Config_PATH);
+            FileOutputStream fileOutputStream = new FileOutputStream(Utils.ConfigPATH);
             fileOutputStream.write(str.getBytes());
             fileOutputStream.close();
         } catch (IOException e) {
@@ -45,17 +45,17 @@ public class Config {
         }
     }
 
-    public void setHideIcons(Boolean bool) {
+    public void setHideLauncherIcon(Boolean bool) {
         try {
-            this.config.put("hideIcons", bool);
+            this.config.put("HideLauncherIcon", bool);
             setConfig(this.config.toString());
         } catch (JSONException ignored) {
         }
     }
 
-    public Boolean getHideIcons() {
+    public Boolean getHideLauncherIcon() {
         try {
-            return (Boolean) this.config.get("hideIcons");
+            return (Boolean) this.config.get("HideLauncherIcon");
         } catch (JSONException e) {
             return false;
         }
@@ -112,7 +112,7 @@ public class Config {
 
     public void setLyricAutoOff(Boolean bool) {
         try {
-            this.config.put("LyricOff", bool);
+            this.config.put("LyricAutoOff", bool);
             setConfig(this.config.toString());
         } catch (JSONException ignored) {
         }
@@ -120,7 +120,7 @@ public class Config {
 
     public Boolean getLyricAutoOff() {
         try {
-            return (Boolean) this.config.get("LyricOff");
+            return (Boolean) this.config.get("LyricAutoOff");
         } catch (JSONException e) {
             return true;
         }
@@ -154,7 +154,7 @@ public class Config {
         try {
             return (String) this.config.get("LyricColor");
         } catch (JSONException e) {
-            return "关闭";
+            return "off";
         }
     }
 
@@ -206,19 +206,19 @@ public class Config {
         }
     }
 
-    public void setIconReverseColor(String str) {
+    public void setIconColor(String str) {
         try {
-            this.config.put("IconReverseColor", str);
+            this.config.put("IconColor", str);
             setConfig(this.config.toString());
         } catch (JSONException ignored) {
         }
     }
 
-    public String getIconReverseColor() {
+    public String getIconColor() {
         try {
-            return (String) this.config.get("IconReverseColor");
+            return (String) this.config.get("IconColor");
         } catch (JSONException e) {
-            return "关闭";
+            return "off";
         }
     }
 }

@@ -252,7 +252,7 @@ public class MainHook implements IXposedHookLoadPackage {
                                                 config = new Config();
                                                 lyricServer = config.getLyricService();
                                                 if (config.getLyricAutoOff()) lyricOff = audioManager.isMusicActive();
-                                                iconReverseColor = config.getIconReverseColor();
+                                                iconReverseColor = config.getIconColor();
                                                 iconReverseColorStatus = true;
                                             }
                                             if (enable && !lyric.equals("")) {

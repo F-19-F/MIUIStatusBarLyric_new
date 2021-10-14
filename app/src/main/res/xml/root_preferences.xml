@@ -3,7 +3,7 @@
 
     <CheckBoxPreference
             android:title="隐藏桌面图标"
-            android:key="hideIcons"
+            android:key="hideLauncherIcon"
             android:defaultValue="false"
             android:summary=""/>
     <PreferenceCategory
@@ -12,31 +12,37 @@
     <CheckBoxPreference
             android:title="总开关"
             android:key="lyricService"
+            android:defaultValue="true"
             android:summary=""/>
 
     <EditTextPreference
             android:title="歌词宽度"
             android:key="lyricWidth"
-            android:summary="35%"/>
+            android:defaultValue="-1"
+            android:summary="-1%"/>
 
     <EditTextPreference
             android:title="歌词自适应最大宽度"
             android:key="lyricMaxWidth"
-            android:summary="35%"/>
+            android:defaultValue="-1"
+            android:summary="-1%"/>
 
     <EditTextPreference
             android:title="歌词颜色"
             android:key="lyricColour"
+            android:defaultValue="关闭"
             android:summary="关闭"/>
 
     <ListPreference
             android:title="图标"
             android:key="icon"
-            android:summary="关闭"/>
+            android:defaultValue="开启"
+            android:summary="开启"/>
 
     <ListPreference
             android:title="反色模式"
-            android:key="iconReverseColor"
+            android:key="iconColor"
+            android:defaultValue="关闭"
             android:summary="关闭"/>
 
     <PreferenceCategory
@@ -45,22 +51,26 @@
     <CheckBoxPreference
             android:title="歌曲暂停关闭歌词"
             android:key="lyricOff"
+            android:defaultValue="true"
             android:summary=""/>
 
     <CheckBoxPreference
             android:title="隐藏通知图标"
             android:key="hideNoticeIcon"
-            android:summary="有歌词自动隐藏通知图标"/>
+            android:defaultValue="false"
+            android:summary="自动隐藏通知图标"/>
 
     <CheckBoxPreference
             android:title="隐藏实时网速"
             android:key="hideNetWork"
-            android:summary="有歌词自动隐藏实时网速"/>
+            android:defaultValue="true"
+            android:summary="自动隐藏实时网速"/>
 
     <CheckBoxPreference
             android:title="隐藏锁屏运营商名称"
             android:key="hideCUK"
-            android:summary="有歌词自动隐藏锁屏运营商名称"/>
+            android:defaultValue="false"
+            android:summary="自动隐藏锁屏运营商名称"/>
 
     <PreferenceScreen
             android:title="重启系统界面"
@@ -74,6 +84,11 @@
 
 
     <PreferenceCategory app:title="关于"/>
+    <Preference
+            android:key="ver_explain"
+            android:summary=""
+            android:title="版本说明"/>
+
 
     <Preference
             android:key="author"
@@ -93,11 +108,6 @@
             android:key="CheckUpdate"
             android:summary=""
             android:title="检查更新"/>
-
-    <Preference
-            android:key="ver_explain"
-            android:summary=""
-            android:title="版本说明"/>
 
 
 </PreferenceScreen>

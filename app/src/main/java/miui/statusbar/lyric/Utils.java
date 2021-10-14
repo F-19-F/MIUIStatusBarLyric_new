@@ -15,23 +15,21 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.*;
-import java.lang.Process;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
 public class Utils {
-    public static String PATH = Environment.getExternalStorageDirectory() + "/Barlyrics/";
+    public static String PATH = Environment.getExternalStorageDirectory() + "/Android/media/miui.statusbar.lyric/";
 
-    public static String Config_PATH = PATH + "Config.json";
+    public static String ConfigPATH = PATH + "Config.json";
 
-    public static String getLocalVersionName(Context ctx) {
+    public static String getLocalVersionCode(Context context) {
         String localVersion = "";
         try {
-            PackageInfo packageInfo = ctx.getApplicationContext()
-                    .getPackageManager()
-                    .getPackageInfo(ctx.getPackageName(), 0);
+            PackageManager packageManager = context.getPackageManager();
+            PackageInfo packageInfo = packageManager.getPackageInfo(context.getPackageName(), 0);
             localVersion = packageInfo.versionName;
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
@@ -51,7 +49,6 @@ public class Utils {
         }
     }
 
-
     public static void init() {
         File file = new File(Utils.PATH);
         File file2 = new File(Utils.PATH + "Config.json");
@@ -62,16 +59,16 @@ public class Utils {
             try {
                 Config config = new Config();
                 file2.createNewFile();
-                config.setHideIcons(false);
+                config.setHideLauncherIcon(false);
                 config.setLyricService(true);
                 config.setLyricWidth(-1);
                 config.setLyricMaxWidth(-1);
                 config.setLyricColor("");
                 config.setIcon(true);
-                config.setIconReverseColor("off");
+                config.setIconColor("off");
                 config.setLyricAutoOff(true);
                 config.setHideNoticeIcon(false);
-                config.setHideNetSpeed(false);
+                config.setHideNetSpeed(true);
                 config.setHideCUK(false);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -122,31 +119,6 @@ public class Utils {
         }
     }
 
-    public static void killProcess(String str) {
-        Process process = null;
-        try {
-            process = Runtime.getRuntime().exec("su");
-            DataOutputStream dataOutputStream = new DataOutputStream(process.getOutputStream());
-            dataOutputStream.write(("pgrep -l " + str + "\n").getBytes());
-            dataOutputStream.flush();
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String stringBuffer = "kill -9 " + bufferedReader.readLine() + "\n";
-            bufferedReader.close();
-            dataOutputStream.writeBytes(stringBuffer);
-            dataOutputStream.flush();
-            dataOutputStream.close();
-            process.destroy();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            assert process != null;
-            process.waitFor();
-        } catch (InterruptedException e2) {
-            e2.printStackTrace();
-        }
-    }
-
 
     private static void checkUpdate(Application application, FragmentActivity fragmentActivity) {
         Toast.makeText(application, "开始检查更新", Toast.LENGTH_SHORT).show();
@@ -154,7 +126,7 @@ public class Utils {
             String data = message.getData().getString("value");
             try {
                 JSONObject jsonObject = new JSONObject(data);
-                if (!Utils.getLocalVersionName(application).equals(jsonObject.getString("tag_name"))) {
+                if (Utils.getLocalVersionCode(application).equals("")) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(fragmentActivity);
                     builder.setTitle("发现新版本[" + jsonObject.getString("tag_name") + "]")
                             .setIcon(R.mipmap.ic_launcher)
@@ -203,23 +175,5 @@ public class Utils {
             }
         }).start();
     }
-    public static void delete(File file) {
-        if (file.isFile()) {
-            file.delete();
-            return;
-        }
-        if (file.isDirectory()) {
-            File[] childFiles = file.listFiles();
-            if (childFiles == null || childFiles.length == 0) {
-                file.delete();
-                return;
-            }
-            for (File childFile : childFiles) {
-                delete(childFile);
-            }
-            file.delete();
-        }
-    }
-
 
 }

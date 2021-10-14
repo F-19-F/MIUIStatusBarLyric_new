@@ -2,6 +2,7 @@ package miui.statusbar.lyric;
 
 import android.content.ComponentName;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
@@ -14,10 +15,10 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.preference.*;
 
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.OutputStream;
 import java.util.Objects;
-
-import static miui.statusbar.lyric.Utils.delete;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -42,28 +43,30 @@ public class MainActivity extends AppCompatActivity {
     public static class SettingsFragment extends PreferenceFragmentCompat {
         private Config config;
 
+        @SuppressWarnings("ResultOfMethodCallIgnored")
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey);
             checkPermission();
             Utils.init();
+            Utils.initIcon(requireContext());
             config = new Config();
 
             // 隐藏桌面图标
-            CheckBoxPreference hideIcons = findPreference("hideIcons");
+            CheckBoxPreference hideIcons = findPreference("hideLauncherIcon");
             assert hideIcons != null;
-            hideIcons.setChecked(config.getHideIcons());
+            hideIcons.setChecked(config.getHideLauncherIcon());
             hideIcons.setOnPreferenceChangeListener((preference, newValue) -> {
                 if (newValue.toString().equals("false")) {
-                    PackageManager packageManager = Objects.requireNonNull(getActivity()).getPackageManager();
+                    PackageManager packageManager = Objects.requireNonNull(requireActivity()).getPackageManager();
                     int show = PackageManager.COMPONENT_ENABLED_STATE_ENABLED;
-                    packageManager.setComponentEnabledSetting(new ComponentName(getActivity(), "miui.statusbar.lyric.launcher"), show, PackageManager.DONT_KILL_APP);
+                    packageManager.setComponentEnabledSetting(new ComponentName(requireActivity(), "miui.statusbar.lyric.launcher"), show, PackageManager.DONT_KILL_APP);
                 } else {
-                    PackageManager packageManager = Objects.requireNonNull(getActivity()).getPackageManager();
+                    PackageManager packageManager = Objects.requireNonNull(requireActivity()).getPackageManager();
                     int show = PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
-                    packageManager.setComponentEnabledSetting(new ComponentName(getActivity(), "miui.statusbar.lyric.launcher"), show, PackageManager.DONT_KILL_APP);
+                    packageManager.setComponentEnabledSetting(new ComponentName(requireActivity(), "miui.statusbar.lyric.launcher"), show, PackageManager.DONT_KILL_APP);
                 }
-                config.setHideIcons((Boolean) newValue);
+                config.setHideLauncherIcon((Boolean) newValue);
 
                 return true;
             });
@@ -97,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     config.setLyricMaxWidth(Integer.parseInt(newValue.toString()));
                 } catch (java.lang.NumberFormatException e) {
-                    config.setLyricMaxWidth(Integer.parseInt("-1"));
+                    config.setLyricMaxWidth(-1);
                     lyricWidth.setSummary("自适应");
                     lyricWidth.setDialogMessage("(-1~100，-1为自适应)，当前:自适应");
                 }
@@ -137,26 +140,28 @@ public class MainActivity extends AppCompatActivity {
             // 歌词颜色
             EditTextPreference lyricColour = findPreference("lyricColour");
             assert lyricColour != null;
-            lyricColour.setSummary(config.getLyricColor());
-            lyricColour.setDialogMessage("请输入16进制颜色代码，例如: #C0C0C0，目前：" + config.getLyricColor());
+            if (config.getLyricColor().equals("off")) {
+                lyricColour.setSummary("关闭");
+                lyricColour.setDialogMessage("请输入16进制颜色代码，例如: #C0C0C0，目前：关闭");
+                lyricColour.setDefaultValue("关闭");
+            } else {
+                lyricColour.setSummary(config.getLyricColor());
+                lyricColour.setDialogMessage("请输入16进制颜色代码，例如: #C0C0C0，目前：" + config.getLyricColor());
+            }
             lyricColour.setOnPreferenceChangeListener((preference, newValue) -> {
-                if (!newValue.toString().equals("")) {
-                    if (newValue.toString().equals("")) {
-                        lyricColour.setSummary("关闭");
-                        config.setLyricColor("关闭");
-                        return true;
-                    } else {
-                        try {
-                            Color.parseColor(newValue.toString());
-                        } catch (Exception e) {
-                            Toast.makeText(requireContext(), "颜色代码不正确!", Toast.LENGTH_SHORT).show();
-                            return true;
-                        }
+                if (newValue.toString().equals("") | newValue.toString().equals("关闭")) {
+                    config.setLyricColor("off");
+                } else {
+                    try {
+                        Color.parseColor(newValue.toString());
+                        lyricColour.setSummary(newValue.toString());
+                        config.setLyricColor(newValue.toString());
+                    } catch (Exception e) {
+                        Toast.makeText(requireContext(), "颜色代码不正确!", Toast.LENGTH_SHORT).show();
+                        config.setLyricColor("off");
+
                     }
                 }
-                lyricColour.setDialogMessage("请输入16进制颜色代码，例如: #C0C0C0，目前：" + newValue);
-                lyricColour.setSummary(newValue.toString());
-                config.setLyricColor(newValue.toString());
                 return true;
             });
 
@@ -168,20 +173,20 @@ public class MainActivity extends AppCompatActivity {
             strArr[1] = "开启";
             icon.setEntries(strArr);
             icon.setEntryValues(strArr);
-            boolean configIcon = config.getIcon();
-            if (configIcon) {
-                icon.setSummary("开闭");
+            if (config.getIcon()) {
+                icon.setSummary(strArr[0]);
             } else {
-                icon.setSummary("关启");
+                icon.setSummary(strArr[1]);
             }
-            icon.setOnPreferenceChangeListener((preference, newValue) -> {
+            icon.setOnPreferenceChangeListener((preference, newValue) ->
+
+            {
                 switch (newValue.toString()) {
                     case "关闭":
                         config.setIcon(false);
                         break;
                     case "开启":
                         config.setIcon(true);
-                        Utils.initIcon(requireContext());
                         break;
                 }
                 icon.setSummary(newValue.toString());
@@ -189,38 +194,40 @@ public class MainActivity extends AppCompatActivity {
             });
 
             // 图标反色
-            ListPreference iconReverseColor = findPreference("iconReverseColor");
-            assert iconReverseColor != null;
+            ListPreference iconColor = findPreference("iconColor");
+            assert iconColor != null;
             strArr = new String[3];
             strArr[0] = "关闭";
             strArr[1] = "白色图标";
             strArr[2] = "黑色图标";
-            iconReverseColor.setEntries(strArr);
-            iconReverseColor.setEntryValues(strArr);
-            switch (config.getIconReverseColor()) {
+            iconColor.setEntries(strArr);
+            iconColor.setEntryValues(strArr);
+            switch (config.getIconColor()) {
                 case "off":
-                    iconReverseColor.setSummary("关闭");
+                    iconColor.setSummary(strArr[0]);
                     break;
                 case "white":
-                    iconReverseColor.setSummary("白色图标");
+                    iconColor.setSummary(strArr[1]);
                     break;
                 case "black":
-                    iconReverseColor.setSummary("黑色图标");
+                    iconColor.setSummary(strArr[2]);
                     break;
             }
-            iconReverseColor.setOnPreferenceChangeListener((preference, newValue) -> {
+            iconColor.setOnPreferenceChangeListener((preference, newValue) ->
+
+            {
                 switch (newValue.toString()) {
                     case "关闭":
-                        config.setIconReverseColor("off");
+                        config.setIconColor("off");
                         break;
                     case "白色图标":
-                        config.setIconReverseColor("white");
+                        config.setIconColor("white");
                         break;
                     case "黑色图标":
-                        config.setIconReverseColor("black");
+                        config.setIconColor("black");
                         break;
                 }
-                iconReverseColor.setSummary(newValue.toString());
+                iconColor.setSummary(newValue.toString());
                 return true;
             });
 
@@ -228,7 +235,9 @@ public class MainActivity extends AppCompatActivity {
             CheckBoxPreference lyricOff = findPreference("lyricOff");
             assert lyricOff != null;
             lyricOff.setChecked(config.getLyricAutoOff());
-            lyricOff.setOnPreferenceChangeListener((preference, newValue) -> {
+            lyricOff.setOnPreferenceChangeListener((preference, newValue) ->
+
+            {
                 config.setLyricAutoOff((Boolean) newValue);
                 return true;
             });
@@ -237,7 +246,9 @@ public class MainActivity extends AppCompatActivity {
             CheckBoxPreference hideNoticeIcon = findPreference("hideNoticeIcon");
             assert hideNoticeIcon != null;
             hideNoticeIcon.setChecked(config.getHideNoticeIcon());
-            hideNoticeIcon.setOnPreferenceChangeListener((preference, newValue) -> {
+            hideNoticeIcon.setOnPreferenceChangeListener((preference, newValue) ->
+
+            {
                 config.setHideNoticeIcon((Boolean) newValue);
                 return true;
             });
@@ -246,7 +257,9 @@ public class MainActivity extends AppCompatActivity {
             CheckBoxPreference hideNetWork = findPreference("hideNetWork");
             assert hideNetWork != null;
             hideNetWork.setChecked(config.getHideNetSpeed());
-            hideNetWork.setOnPreferenceChangeListener((preference, newValue) -> {
+            hideNetWork.setOnPreferenceChangeListener((preference, newValue) ->
+
+            {
                 config.setHideNetSpeed((Boolean) newValue);
                 return true;
             });
@@ -255,7 +268,9 @@ public class MainActivity extends AppCompatActivity {
             CheckBoxPreference hideCUK = findPreference("hideCUK");
             assert hideCUK != null;
             hideCUK.setChecked(config.getHideCUK());
-            hideCUK.setOnPreferenceChangeListener((preference, newValue) -> {
+            hideCUK.setOnPreferenceChangeListener((preference, newValue) ->
+
+            {
                 config.setHideCUK((Boolean) newValue);
                 return true;
             });
@@ -263,42 +278,47 @@ public class MainActivity extends AppCompatActivity {
             // 重启SystemUI
             Preference reSystemUI = findPreference("restartUI");
             assert reSystemUI != null;
-            reSystemUI.setOnPreferenceClickListener(((preference) -> {
+            reSystemUI.setOnPreferenceClickListener(((preference) ->
+
+            {
                 new AlertDialog.Builder(requireActivity())
                         .setTitle("确定重启系统界面吗？")
                         .setMessage("若使用中突然发现不能使用，可尝试重启系统界面。")
-                        .setPositiveButton("确定", (dialog, which) -> Utils.killProcess("systemui"))
+//                        .setPositiveButton("确定", (dialog, which) -> Utils.killProcess("systemui"))
+                        .setPositiveButton("确定", (dialog, which) -> {
+                            try {
+                                Process p = Runtime.getRuntime().exec("su");
+                                OutputStream outputStream = p.getOutputStream();
+                                DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
+                                dataOutputStream.writeBytes("pkill -f com.android.systemui");
+                                dataOutputStream.flush();
+                                dataOutputStream.close();
+                                outputStream.close();
+                            } catch (Throwable t) {
+                                t.printStackTrace();
+                            }
+                        })
                         .create()
                         .show();
                 return true;
             }));
 
-            //版本介绍
-            Preference verExplain = findPreference("ver_explain");
-            assert verExplain != null;
-            verExplain.setSummary("当前版本: " + Utils.getLocalVersionName(requireContext()));
-            verExplain.setOnPreferenceClickListener((preference) -> {
-                new AlertDialog.Builder(requireActivity())
-                        .setTitle("当前版本[" + Utils.getLocalVersionName(requireContext()) + "]适用于")
-                        .setMessage("酷狗音乐:v10.8.4\n酷我音乐:v9.4.6.2\n网易云音乐:v8.5.40\nQQ音乐:v10.17.0.11")
-                        .setPositiveButton("确定", null)
-                        .create()
-                        .show();
-                return true;
-            });
-
             // 重置插件
             Preference reset = findPreference("reset");
             assert reset != null;
-            reset.setOnPreferenceClickListener((preference) -> {
+            reset.setOnPreferenceClickListener((preference) ->
+            {
                 new AlertDialog.Builder(requireActivity())
                         .setTitle("是否要重置模块")
                         .setMessage("模块没问题请不要随意重置")
                         .setPositiveButton("确定", (dialog, which) -> {
-                            delete(new File(Utils.PATH));
-                            delete(new File(Objects.requireNonNull(getActivity()).getFilesDir().getPath() + "/shared_prefs/"));
+                            SharedPreferences userSettings = requireActivity().getSharedPreferences("miui.statusbar.lyric_preferences", 0);
+                            SharedPreferences.Editor editor = userSettings.edit();
+                            editor.clear();
+                            editor.apply();
+                            new File(Utils.ConfigPATH).delete();
                             Toast.makeText(requireActivity(), "重置成功", Toast.LENGTH_SHORT).show();
-                            System.exit(0);
+                            requireActivity().finishAffinity();
                         })
                         .setNegativeButton("取消", null)
                         .create()
@@ -306,10 +326,29 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             });
 
+
+            //版本介绍
+            Preference verExplain = findPreference("ver_explain");
+            assert verExplain != null;
+            verExplain.setSummary("当前版本: " + Utils.getLocalVersionCode(requireContext()));
+            verExplain.setOnPreferenceClickListener((preference) ->
+            {
+                new AlertDialog.Builder(requireActivity())
+                        .setTitle("当前版本[" + Utils.getLocalVersionCode(requireContext()) + "]适用于")
+                        .setMessage("酷狗音乐:v10.8.4\n酷我音乐:v9.4.6.2\n网易云音乐:v8.5.40\nQQ音乐:v10.17.0.11")
+                        .setPositiveButton("确定", null)
+                        .create()
+                        .show();
+                return true;
+            });
+
+
             // 作者主页
             Preference author = findPreference("author");
             assert author != null;
-            author.setOnPreferenceClickListener((preference) -> {
+            author.setOnPreferenceClickListener((preference) ->
+
+            {
                 new AlertDialog.Builder(requireActivity())
                         .setTitle("作者主页")
                         .setNegativeButton("577fkj", (dialog, which) -> {
@@ -332,32 +371,12 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             });
 
-//            // 项目地址
-//            Preference sourcecode = findPreference("Sourcecode");
-//            assert sourcecode != null;
-//            sourcecode.setOnPreferenceClickListener((preference) -> {
-//                Uri uri = Uri.parse("https://github.com/577fkj/MIUIStatusBarlyric_new");
-//                Intent intent = new Intent();
-//                intent.setAction("android.intent.action.VIEW");
-//                intent.setData(uri);
-//                startActivity(intent);
-//                return true;
-//            });
-
-            //            // 检查更新
-//            Preference checkUpdate = findPreference("CheckUpdate");
-//            assert checkUpdate != null;
-//            checkUpdate.setOnPreferenceClickListener((preference) -> {
-//                checkUpdate(requireActivity().getApplication(), requireActivity());
-//                return true;
-//            });
-
         }
 
         private void checkPermission() {
             if (ContextCompat.checkSelfPermission(requireActivity(), "android.permission.WRITE_EXTERNAL_STORAGE") != 0) {
                 if (ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), "android.permission.WRITE_EXTERNAL_STORAGE")) {
-                    Toast.makeText(getActivity(), "请开通相关权限，否则无法正常使用本应用！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireActivity(), "请开通相关权限，否则无法正常使用本应用！", Toast.LENGTH_SHORT).show();
                 }
                 String[] strArr = new String[1];
                 strArr[0] = "android.permission.WRITE_EXTERNAL_STORAGE";
