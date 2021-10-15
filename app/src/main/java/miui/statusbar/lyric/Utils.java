@@ -11,6 +11,7 @@ import android.util.Log;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.FragmentActivity;
+import de.robv.android.xposed.XposedBridge;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -70,6 +71,7 @@ public class Utils {
                 config.setHideNoticeIcon(false);
                 config.setHideNetSpeed(true);
                 config.setHideCUK(false);
+                config.setDebug(false);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -119,6 +121,11 @@ public class Utils {
         }
     }
 
+    public static void log(String text) {
+        if (new Config().getDebug()) {
+            XposedBridge.log("MIUI状态栏歌词： " + text);
+        }
+    }
 
     private static void checkUpdate(Application application, FragmentActivity fragmentActivity) {
         Toast.makeText(application, "开始检查更新", Toast.LENGTH_SHORT).show();

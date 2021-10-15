@@ -72,6 +72,12 @@
             android:defaultValue="false"
             android:summary="自动隐藏锁屏运营商名称"/>
 
+    <CheckBoxPreference
+            android:title="Debug模式"
+            android:key="debug"
+            android:defaultValue="false"
+            android:summary=""/>
+
     <PreferenceScreen
             android:title="重启系统界面"
             android:key="restartUI"
