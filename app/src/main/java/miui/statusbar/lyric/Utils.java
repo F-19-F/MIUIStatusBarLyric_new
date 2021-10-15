@@ -41,7 +41,7 @@ public class Utils {
     public static String getMIUIVer() {
         try {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader
-                    (Runtime.getRuntime().exec(" ro.miui.ui.version.name").getInputStream()), 1024);
+                    (Runtime.getRuntime().exec("getprop ro.miui.ui.version.name").getInputStream()), 1024);
             String ver = bufferedReader.readLine();
             bufferedReader.close();
             return ver;

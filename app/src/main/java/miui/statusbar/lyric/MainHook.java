@@ -1,23 +1,9 @@
 package miui.statusbar.lyric;
 
-import java.io.File;
-import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import android.app.MiuiStatusBarManager;
-import android.os.Looper;
-import de.robv.android.xposed.IXposedHookLoadPackage;
-import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.XposedHelpers;
-import de.robv.android.xposed.callbacks.XC_LoadPackage;
-
 import android.app.ActivityManager;
 import android.app.AndroidAppHelper;
 import android.app.Application;
+import android.app.MiuiStatusBarManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -30,6 +16,7 @@ import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.provider.Settings;
 import android.text.TextPaint;
@@ -40,8 +27,20 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import androidx.core.graphics.ColorUtils;
+import de.robv.android.xposed.IXposedHookLoadPackage;
+import de.robv.android.xposed.XC_MethodHook;
+import de.robv.android.xposed.XposedHelpers;
+import de.robv.android.xposed.callbacks.XC_LoadPackage;
+
+import java.io.File;
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import static miui.statusbar.lyric.Utils.log;
 
 public class MainHook implements IXposedHookLoadPackage {
     private static final String KEY_LYRIC = "lyric";
@@ -55,8 +54,7 @@ public class MainHook implements IXposedHookLoadPackage {
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals("Lyric_Server")) {
                 lyric = intent.getStringExtra("Lyric_Data");
-                Config config = new Config();
-                if (config.getIcon()) {
+                if (new Config().getIcon()) {
                     iconPath = Utils.PATH + intent.getStringExtra("Lyric_Icon") + ".png";
                 } else {
                     iconPath = "";
@@ -83,7 +81,7 @@ public class MainHook implements IXposedHookLoadPackage {
 
         switch (lpparam.packageName) {
             case "com.android.systemui":
-                XposedBridge.log("Hook SystemUI");
+                log("Hook SystemUI");
                 // 状态栏歌词
                 XposedHelpers.findAndHookMethod("com.android.systemui.statusbar.phone.CollapsedStatusBarFragment", lpparam.classLoader, "onViewCreated", View.class, Bundle.class, new XC_MethodHook() {
                     @Override
@@ -111,7 +109,7 @@ public class MainHook implements IXposedHookLoadPackage {
 
                         // 获取系统版本
                         String miuiVer = Utils.getMIUIVer();
-                        XposedBridge.log("MIUI Ver: " + miuiVer);
+                        log("MIUI Ver: " + miuiVer);
 
                         // 反射获取时钟
                         if (miuiVer.equals("V12")) {
@@ -119,7 +117,7 @@ public class MainHook implements IXposedHookLoadPackage {
                         } else if (miuiVer.equals("V125")) {
                             clockField = XposedHelpers.findField(param.thisObject.getClass(), "mClockView");
                         } else {
-                            XposedBridge.log("Unknown version");
+                            log("Unknown version");
                             clockField = XposedHelpers.findField(param.thisObject.getClass(), "mClockView");
                         }
                         TextView clock = (TextView) clockField.get(param.thisObject);
@@ -225,7 +223,7 @@ public class MainHook implements IXposedHookLoadPackage {
                                         if (count == 100) {
                                             if (!(isServiceRunning(application, "com.kugou") | isServiceRunning(application, "com.netease.cloudmusic") | isServiceRunning(application, "com.tencent.qqmusic.service") | isServiceRunning(application, "cn.kuwo") | isServiceRunning(application, "com.maxmpz.audioplayer") | isServiceRunning(application, "remix.myplayer"))) {
                                                 if (enable || (lyricTextView.getVisibility() != View.GONE)) {
-                                                    XposedBridge.log("播放器关闭 清除歌词");
+                                                    log("播放器关闭 清除歌词");
                                                     lyric = "";
                                                     enable = false;
 
@@ -257,7 +255,8 @@ public class MainHook implements IXposedHookLoadPackage {
                                             }
                                             if (enable && !lyric.equals("")) {
                                                 // 设置颜色
-                                                if (!config.getLyricColor().equals("关闭") && !config.getLyricColor().equals("")) {
+                                                log((!config.getLyricColor().equals("off") && !config.getLyricColor().equals("")) + "  :  " + config.getLyricColor());
+                                                if (!config.getLyricColor().equals("off") && !config.getLyricColor().equals("")) {
                                                     if (color != ColorStateList.valueOf(Color.parseColor(config.getLyricColor()))) {
                                                         color = ColorStateList.valueOf(Color.parseColor(config.getLyricColor()));
                                                         lyricTextView.setTextColor(color);
@@ -303,7 +302,7 @@ public class MainHook implements IXposedHookLoadPackage {
                                                 }
                                             } else if (enable) {
                                                 if (lyricTextView.getVisibility() != View.GONE) {
-                                                    XposedBridge.log("开关关闭或播放器暂停 清除歌词");
+                                                    log("开关关闭或播放器暂停 清除歌词");
                                                     Message message = LyricUpdate.obtainMessage();
                                                     Bundle bundle = new Bundle();
                                                     bundle.putString(KEY_LYRIC, "");
@@ -321,8 +320,8 @@ public class MainHook implements IXposedHookLoadPackage {
                                                     if (config.getHideNetSpeed() && !MiuiStatusBarManager.isShowNetworkSpeed(application)) {
                                                         MiuiStatusBarManager.setShowNetworkSpeed(application, true);
                                                     }
-                                                    XposedBridge.log(String.valueOf(MiuiStatusBarManager.isShowNetworkSpeed(application)));
-                                                    XposedBridge.log("1111");
+                                                    log(String.valueOf(MiuiStatusBarManager.isShowNetworkSpeed(application)));
+                                                    log("1111");
                                                     if (config.getHideCUK() && Settings.System.getInt(context.getContentResolver(), "status_bar_show_carrier_under_keyguard", 1) != 1) {
                                                         Settings.System.putInt(application.getContentResolver(), "status_bar_show_carrier_under_keyguard", 1);
                                                     }
@@ -338,7 +337,7 @@ public class MainHook implements IXposedHookLoadPackage {
                 });
                 break;
             case "com.android.settings":
-                XposedBridge.log("Hook Settings");
+                log("Hook Settings");
                 XposedHelpers.findAndHookMethod("com.android.settings.NotchStatusBarSettings", lpparam.classLoader, "onCreate", Class.forName("android.os.Bundle"), new XC_MethodHook() {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
@@ -353,7 +352,7 @@ public class MainHook implements IXposedHookLoadPackage {
                         XposedHelpers.setObjectField(objectField, "mTitle", "状态栏歌词");
                         XposedHelpers.setObjectField(objectField, "mText", "状态栏歌词");
                         XposedHelpers.setObjectField(objectField, "mClickListener", (View.OnClickListener) view -> {
-                            Intent intent = new Intent("msbl.statusbarlyric");
+                            Intent intent = new Intent("miui.statusbar.lyric.MainActivity");
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             currentApplication.startActivity(intent);
                         });
@@ -384,7 +383,7 @@ public class MainHook implements IXposedHookLoadPackage {
                         super.afterHookedMethod(param);
                         sendLyric(context, param.args[0].toString(), "netease");
                         musicName = param.args[0].toString();
-//                        XposedBridge.log("网易云： " + param.args[0].toString());
+                        log("网易云： " + param.args[0].toString());
                     }
                 });
                 XposedHelpers.findAndHookMethod(lpparam.classLoader.loadClass("com.netease.cloudmusic.module.player.t.e"), "F", Class.forName("java.lang.String"), Class.forName("java.lang.String"), new XC_MethodHook() {
@@ -392,7 +391,7 @@ public class MainHook implements IXposedHookLoadPackage {
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                         super.beforeHookedMethod(param);
                         sendLyric(context, param.args[0].toString(), "netease");
-//                        XposedBridge.log("网易云： " + param.args[0].toString());
+                        log("网易云： " + param.args[0].toString());
                         param.args[0] = musicName;
                         param.setResult(param.args);
                     }
@@ -404,7 +403,7 @@ public class MainHook implements IXposedHookLoadPackage {
                 });
                 break;
             case "com.kugou.android":
-                XposedBridge.log("正在hook酷狗音乐");
+                log("正在hook酷狗音乐");
                 XposedHelpers.findAndHookMethod("android.media.AudioManager", lpparam.classLoader, "isBluetoothA2dpOn", new XC_MethodHook() {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
@@ -426,7 +425,7 @@ public class MainHook implements IXposedHookLoadPackage {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         super.afterHookedMethod(param);
-//                        XposedBridge.log("酷狗音乐:" + ((HashMap) param.args[0]).values().toArray()[0]);
+                        log("酷狗音乐:" + ((HashMap) param.args[0]).values().toArray()[0]);
                         sendLyric(context, "" + ((HashMap) param.args[0]).values().toArray()[0], "kugou");
                     }
                 });
@@ -449,7 +448,7 @@ public class MainHook implements IXposedHookLoadPackage {
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                         super.beforeHookedMethod(param);
                         String str = (String) param.args[0];
-//                        XposedBridge.log("酷我音乐:" + str);
+                        log("酷我音乐:" + str);
                         if (param.args[0] != null && !str.equals("") && !str.equals("好音质 用酷我") && !str.equals("正在搜索歌词...") && !str.contains(" - ")) {
                             sendLyric(context, "" + str, "kuwo");
                         }
@@ -484,7 +483,7 @@ public class MainHook implements IXposedHookLoadPackage {
                         Object obj = XposedHelpers.findField(param.thisObject.getClass(), "b").get(param.thisObject);
                         String str = (String) declaredField.get(obj);
 
-//                        XposedBridge.log("qq音乐: " + str);
+                        log("qq音乐: " + str);
 
                         sendLyric(context, str, "qqmusic");
                     }

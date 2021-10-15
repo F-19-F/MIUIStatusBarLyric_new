@@ -140,10 +140,10 @@ public class MainActivity extends AppCompatActivity {
             // 歌词颜色
             EditTextPreference lyricColour = findPreference("lyricColour");
             assert lyricColour != null;
+            lyricColour.setSummary(config.getLyricColor());
             if (config.getLyricColor().equals("off")) {
                 lyricColour.setSummary("关闭");
                 lyricColour.setDialogMessage("请输入16进制颜色代码，例如: #C0C0C0，目前：关闭");
-                lyricColour.setDefaultValue("关闭");
             } else {
                 lyricColour.setSummary(config.getLyricColor());
                 lyricColour.setDialogMessage("请输入16进制颜色代码，例如: #C0C0C0，目前：" + config.getLyricColor());
@@ -159,7 +159,6 @@ public class MainActivity extends AppCompatActivity {
                     } catch (Exception e) {
                         Toast.makeText(requireContext(), "颜色代码不正确!", Toast.LENGTH_SHORT).show();
                         config.setLyricColor("off");
-
                     }
                 }
                 return true;
@@ -174,9 +173,9 @@ public class MainActivity extends AppCompatActivity {
             icon.setEntries(strArr);
             icon.setEntryValues(strArr);
             if (config.getIcon()) {
-                icon.setSummary(strArr[0]);
-            } else {
                 icon.setSummary(strArr[1]);
+            } else {
+                icon.setSummary(strArr[0]);
             }
             icon.setOnPreferenceChangeListener((preference, newValue) ->
 
@@ -258,7 +257,6 @@ public class MainActivity extends AppCompatActivity {
             assert hideNetWork != null;
             hideNetWork.setChecked(config.getHideNetSpeed());
             hideNetWork.setOnPreferenceChangeListener((preference, newValue) ->
-
             {
                 config.setHideNetSpeed((Boolean) newValue);
                 return true;
@@ -269,17 +267,23 @@ public class MainActivity extends AppCompatActivity {
             assert hideCUK != null;
             hideCUK.setChecked(config.getHideCUK());
             hideCUK.setOnPreferenceChangeListener((preference, newValue) ->
-
             {
                 config.setHideCUK((Boolean) newValue);
                 return true;
             });
-
+            // Debug模式
+            CheckBoxPreference debug = findPreference("debug");
+            assert debug != null;
+            debug.setChecked(config.getDebug());
+            debug.setOnPreferenceChangeListener((preference, newValue) ->
+            {
+                config.setDebug((Boolean) newValue);
+                return true;
+            });
             // 重启SystemUI
             Preference reSystemUI = findPreference("restartUI");
             assert reSystemUI != null;
             reSystemUI.setOnPreferenceClickListener(((preference) ->
-
             {
                 new AlertDialog.Builder(requireActivity())
                         .setTitle("确定重启系统界面吗？")
@@ -298,6 +302,7 @@ public class MainActivity extends AppCompatActivity {
                                 t.printStackTrace();
                             }
                         })
+                        .setNegativeButton("取消", null)
                         .create()
                         .show();
                 return true;
@@ -347,7 +352,6 @@ public class MainActivity extends AppCompatActivity {
             Preference author = findPreference("author");
             assert author != null;
             author.setOnPreferenceClickListener((preference) ->
-
             {
                 new AlertDialog.Builder(requireActivity())
                         .setTitle("作者主页")

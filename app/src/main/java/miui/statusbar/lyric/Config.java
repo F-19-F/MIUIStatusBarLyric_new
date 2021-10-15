@@ -190,6 +190,22 @@ public class Config {
         }
     }
 
+    public void setDebug(Boolean bool) {
+        try {
+            this.config.put("debug", bool);
+            setConfig(this.config.toString());
+        } catch (JSONException ignored) {
+        }
+    }
+
+    public Boolean getDebug() {
+        try {
+            return (Boolean) this.config.get("debug");
+        } catch (JSONException e) {
+            return false;
+        }
+    }
+
     public void setIcon(Boolean bool) {
         try {
             this.config.put("Icon", bool);
