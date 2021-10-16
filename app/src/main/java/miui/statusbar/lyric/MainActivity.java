@@ -79,58 +79,60 @@ public class MainActivity extends AppCompatActivity {
             // 歌词宽度
             EditTextPreference lyricWidth = findPreference("lyricWidth");
             assert lyricWidth != null;
-            if (config.getLyricWidth() == -1) {
+            lyricWidth.setSummary(String.valueOf(config.getLyricWidth()));
+            if (String.valueOf(config.getLyricWidth()).equals("-1")) {
                 lyricWidth.setSummary("自适应");
-            } else {
-                lyricWidth.setSummary(config.getLyricWidth() + "%");
             }
-            lyricWidth.setDialogMessage("(-1~100，-1为自适应)，当前:" + lyricWidth.getSummary());
+            lyricWidth.setDefaultValue(String.valueOf(config.getLyricWidth()));
+            lyricWidth.setDialogMessage("(-1~100，-1为自适应)，当前：" + lyricWidth.getSummary());
             lyricWidth.setOnPreferenceChangeListener((preference, newValue) -> {
-                lyricWidth.setSummary(newValue.toString());
-                lyricWidth.setDefaultValue(newValue);
-                if (newValue.toString().equals("-1")) {
-                    lyricWidth.setSummary("自适应");
-                    lyricWidth.setDialogMessage("(-1~100，-1为自适应)，当前:自适应");
-                } else {
-                    lyricWidth.setDialogMessage("(-1~100，-1为自适应)，当前:" + newValue + "%");
-                }
+                String value = newValue.toString().replaceAll(" ", "");
                 try {
-                    config.setLyricMaxWidth(Integer.parseInt(newValue.toString()));
-                } catch (java.lang.NumberFormatException e) {
-                    config.setLyricMaxWidth(-1);
+                    if (value.equals("-1") | value.equals("")) {
+                        config.setLyricWidth(-1);
+                        lyricWidth.setSummary("自适应");
+                    } else if (Integer.parseInt(value) <= 100 && Integer.parseInt(value) >= 0) {
+                        config.setLyricWidth(Integer.parseInt(value));
+                        lyricWidth.setSummary(value);
+                    } else {
+                        config.setLyricWidth(-1);
+                        Toast.makeText(requireActivity(), "范围输入错误，恢复默认", Toast.LENGTH_LONG).show();
+                    }
+                } catch (NumberFormatException e) {
+                    config.setLyricWidth(-1);
                     lyricWidth.setSummary("自适应");
-                    lyricWidth.setDialogMessage("(-1~100，-1为自适应)，当前:自适应");
+                    Toast.makeText(requireActivity(), "范围输入错误，恢复默认", Toast.LENGTH_LONG).show();
                 }
                 return true;
             });
 
+
             // 歌词最大自适应宽度
             EditTextPreference lyricMaxWidth = findPreference("lyricMaxWidth");
             assert lyricMaxWidth != null;
-            lyricMaxWidth.setSummary(config.getLyricMaxWidth() + "%");
-            if (config.getLyricMaxWidth() == -1) {
+            lyricMaxWidth.setSummary((String.valueOf(config.getLyricMaxWidth())));
+            if (String.valueOf(config.getLyricMaxWidth()).equals("-1")) {
                 lyricMaxWidth.setSummary("关闭");
-                lyricMaxWidth.setDialogMessage("(-1~100，-1为关闭，仅在歌词宽度为自适应时生效)，当前:关闭");
-            } else {
-                lyricMaxWidth.setDialogMessage("(-1~100，-1为关闭，仅在歌词宽度为自适应时生效)，当前:" + lyricMaxWidth.getSummary());
             }
+            lyricMaxWidth.setDialogMessage("(-1~100，-1为关闭，仅在歌词宽度为自适应时生效)，当前:" + lyricMaxWidth.getSummary());
             lyricMaxWidth.setOnPreferenceChangeListener((preference, newValue) -> {
-                lyricMaxWidth.setSummary(newValue.toString());
-                lyricMaxWidth.setDefaultValue(newValue);
-                if (newValue.toString().equals("-1")) {
-                    lyricMaxWidth.setDialogMessage("(-1~100，-1为关闭，仅在歌词宽度为自适应时生效)，当前:关闭");
-                    lyricMaxWidth.setSummary("关闭");
-                } else {
-                    lyricMaxWidth.setDialogMessage("(-1~100，-1为关闭，仅在歌词宽度为自适应时生效)，当前:" + newValue + "%");
-                }
                 try {
-                    config.setLyricMaxWidth(Integer.parseInt(newValue.toString()));
-                } catch (java.lang.NumberFormatException e) {
-                    lyricMaxWidth.setSummary("关闭");
-                    lyricMaxWidth.setDialogMessage("(-1~100，-1为关闭，仅在歌词宽度为自适应时生效)，当前:关闭");
-                    config.setLyricMaxWidth(Integer.parseInt("-1"));
+                    String value = newValue.toString().replaceAll(" ", "");
+                    if (value.equals("-1") | value.equals("")) {
+                        config.setLyricMaxWidth(-1);
+                        lyricMaxWidth.setSummary("自适应");
+                    } else if (Integer.parseInt(value) <= 100 && Integer.parseInt(value) >= 0) {
+                        config.setLyricMaxWidth(Integer.parseInt(value));
+                        lyricMaxWidth.setSummary(value);
+                    } else {
+                        config.setLyricMaxWidth(-1);
+                        Toast.makeText(requireActivity(), "范围输入错误，恢复默认", Toast.LENGTH_LONG).show();
+                    }
+                } catch (NumberFormatException e) {
+                    config.setLyricMaxWidth(-1);
+                    lyricMaxWidth.setSummary("自适应");
+                    Toast.makeText(requireActivity(), "范围输入错误，恢复默认", Toast.LENGTH_LONG).show();
                 }
-
                 return true;
             });
 
@@ -138,14 +140,18 @@ public class MainActivity extends AppCompatActivity {
             EditTextPreference lyricColour = findPreference("lyricColour");
             assert lyricColour != null;
             lyricColour.setSummary(config.getLyricColor());
-            if (config.getLyricColor().equals("off")) {
+            if (config.getLyricColor().
+
+                    equals("off")) {
                 lyricColour.setSummary("关闭");
                 lyricColour.setDialogMessage("请输入16进制颜色代码，例如: #C0C0C0，目前：关闭");
             } else {
                 lyricColour.setSummary(config.getLyricColor());
                 lyricColour.setDialogMessage("请输入16进制颜色代码，例如: #C0C0C0，目前：" + config.getLyricColor());
             }
-            lyricColour.setOnPreferenceChangeListener((preference, newValue) -> {
+            lyricColour.setOnPreferenceChangeListener((preference, newValue) ->
+
+            {
                 if (newValue.toString().equals("") | newValue.toString().equals("关闭")) {
                     config.setLyricColor("off");
                 } else {
@@ -198,6 +204,7 @@ public class MainActivity extends AppCompatActivity {
                 iconColor.setSummary(strArr[0]);
             }
             iconColor.setOnPreferenceChangeListener((preference, newValue) ->
+
             {
                 config.setIconAutoColor((boolean) newValue);
                 return true;
@@ -230,6 +237,7 @@ public class MainActivity extends AppCompatActivity {
             assert hideNetWork != null;
             hideNetWork.setChecked(config.getHideNetSpeed());
             hideNetWork.setOnPreferenceChangeListener((preference, newValue) ->
+
             {
                 config.setHideNetSpeed((Boolean) newValue);
                 return true;
@@ -240,6 +248,7 @@ public class MainActivity extends AppCompatActivity {
             assert hideCUK != null;
             hideCUK.setChecked(config.getHideCUK());
             hideCUK.setOnPreferenceChangeListener((preference, newValue) ->
+
             {
                 config.setHideCUK((Boolean) newValue);
                 return true;
@@ -249,6 +258,7 @@ public class MainActivity extends AppCompatActivity {
             assert debug != null;
             debug.setChecked(config.getDebug());
             debug.setOnPreferenceChangeListener((preference, newValue) ->
+
             {
                 config.setDebug((Boolean) newValue);
                 return true;
@@ -257,6 +267,7 @@ public class MainActivity extends AppCompatActivity {
             Preference reSystemUI = findPreference("restartUI");
             assert reSystemUI != null;
             reSystemUI.setOnPreferenceClickListener(((preference) ->
+
             {
                 new AlertDialog.Builder(requireActivity())
                         .setTitle("确定重启系统界面吗？")
@@ -285,6 +296,7 @@ public class MainActivity extends AppCompatActivity {
             Preference reset = findPreference("reset");
             assert reset != null;
             reset.setOnPreferenceClickListener((preference) ->
+
             {
                 new AlertDialog.Builder(requireActivity())
                         .setTitle("是否要重置模块")
@@ -308,8 +320,11 @@ public class MainActivity extends AppCompatActivity {
             //版本介绍
             Preference verExplain = findPreference("ver_explain");
             assert verExplain != null;
-            verExplain.setSummary("当前版本: " + Utils.getLocalVersionCode(requireContext()));
+            verExplain.setSummary("当前版本: " + Utils.getLocalVersionCode(
+
+                    requireContext()));
             verExplain.setOnPreferenceClickListener((preference) ->
+
             {
                 new AlertDialog.Builder(requireActivity())
                         .setTitle("当前版本[" + Utils.getLocalVersionCode(requireContext()) + "]适用于")
@@ -325,6 +340,7 @@ public class MainActivity extends AppCompatActivity {
             Preference author = findPreference("author");
             assert author != null;
             author.setOnPreferenceClickListener((preference) ->
+
             {
                 new AlertDialog.Builder(requireActivity())
                         .setTitle("作者主页")

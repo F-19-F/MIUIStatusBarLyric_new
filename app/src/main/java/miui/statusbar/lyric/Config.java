@@ -101,7 +101,7 @@ public class Config {
         }
     }
 
-    public int getLyricMaxWidth() {
+    public  int getLyricMaxWidth() {
         try {
             return (Integer) this.config.get("LyricMaxWidth");
         } catch (JSONException e) {

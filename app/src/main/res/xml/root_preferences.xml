@@ -19,13 +19,13 @@
             android:title="歌词宽度"
             android:key="lyricWidth"
             android:defaultValue="-1"
-            android:summary="-1%"/>
+            android:summary="-1"/>
 
     <EditTextPreference
             android:title="歌词自适应最大宽度"
             android:key="lyricMaxWidth"
             android:defaultValue="-1"
-            android:summary="-1%"/>
+            android:summary="-1"/>
 
     <EditTextPreference
             android:title="歌词颜色"
