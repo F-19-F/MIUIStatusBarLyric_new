@@ -106,7 +106,6 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             });
 
-
             // 歌词最大自适应宽度
             EditTextPreference lyricMaxWidth = findPreference("lyricMaxWidth");
             assert lyricMaxWidth != null;
