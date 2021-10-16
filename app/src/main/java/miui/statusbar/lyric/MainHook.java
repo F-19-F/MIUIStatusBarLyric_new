@@ -215,13 +215,20 @@ public class MainHook implements IXposedHookLoadPackage {
                                     String oldLyric = "";
                                     boolean lyricServer = false;
                                     boolean lyricOff = false;
-                                    String iconReverseColor = "";
+                                    Boolean iconReverseColor = false;
                                     boolean iconReverseColorStatus = false;
 
                                     @Override
                                     public void run() {
                                         if (count == 100) {
-                                            if (!(isServiceRunning(application, "com.kugou") | isServiceRunning(application, "com.netease.cloudmusic") | isServiceRunning(application, "com.tencent.qqmusic.service") | isServiceRunning(application, "cn.kuwo") | isServiceRunning(application, "com.maxmpz.audioplayer") | isServiceRunning(application, "remix.myplayer"))) {
+                                            if (isServiceRunning(application, "com.kugou") | isServiceRunning(application, "com.netease.cloudmusic") | isServiceRunning(application, "com.tencent.qqmusic.service") | isServiceRunning(application, "cn.kuwo") | isServiceRunning(application, "com.maxmpz.audioplayer") | isServiceRunning(application, "remix.myplayer")) {
+                                                enable = true;
+                                                config = new Config();
+                                                lyricServer = config.getLyricService();
+                                                if (config.getLyricAutoOff()) lyricOff = audioManager.isMusicActive();
+                                                iconReverseColor = config.getIconAutoColor();
+                                                iconReverseColorStatus = true;
+                                            } else {
                                                 if (enable || (lyricTextView.getVisibility() != View.GONE)) {
                                                     log("播放器关闭 清除歌词");
                                                     lyric = "";
@@ -245,13 +252,6 @@ public class MainHook implements IXposedHookLoadPackage {
                                                         Settings.System.putInt(application.getContentResolver(), "status_bar_show_carrier_under_keyguard", 1);
                                                     }
                                                 }
-                                            } else {
-                                                enable = true;
-                                                config = new Config();
-                                                lyricServer = config.getLyricService();
-                                                if (config.getLyricAutoOff()) lyricOff = audioManager.isMusicActive();
-                                                iconReverseColor = config.getIconColor();
-                                                iconReverseColorStatus = true;
                                             }
                                             if (enable && !lyric.equals("")) {
                                                 // 设置颜色
@@ -272,10 +272,8 @@ public class MainHook implements IXposedHookLoadPackage {
                                                         if (new File(iconPath).exists()) {
                                                             Drawable createFromPath = Drawable.createFromPath(iconPath);
                                                             createFromPath.setBounds(0, 0, (int) clock.getTextSize(), (int) clock.getTextSize());
-                                                            if (iconReverseColor.equals("white")) {
+                                                            if (iconReverseColor) {
                                                                 createFromPath = reverseColor(createFromPath, isDark(clock.getTextColors().getDefaultColor()));
-                                                            } else if (iconReverseColor.equals("black")) {
-                                                                createFromPath = reverseColor(createFromPath, !isDark(clock.getTextColors().getDefaultColor()));
                                                             }
                                                             Message obtainMessage2 = iconUpdate.obtainMessage();
                                                             obtainMessage2.obj = createFromPath;

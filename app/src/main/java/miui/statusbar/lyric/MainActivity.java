@@ -11,8 +11,6 @@ import android.widget.Toast;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.preference.*;
 
 import java.io.DataOutputStream;
@@ -47,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey);
-            checkPermission();
+            Utils.checkPermission(requireActivity());
             Utils.init();
             Utils.initIcon(requireContext());
             config = new Config();
@@ -57,25 +55,23 @@ public class MainActivity extends AppCompatActivity {
             assert hideIcons != null;
             hideIcons.setChecked(config.getHideLauncherIcon());
             hideIcons.setOnPreferenceChangeListener((preference, newValue) -> {
-                if (newValue.toString().equals("false")) {
-                    PackageManager packageManager = Objects.requireNonNull(requireActivity()).getPackageManager();
-                    int show = PackageManager.COMPONENT_ENABLED_STATE_ENABLED;
-                    packageManager.setComponentEnabledSetting(new ComponentName(requireActivity(), "miui.statusbar.lyric.launcher"), show, PackageManager.DONT_KILL_APP);
+                int mode;
+                PackageManager packageManager = Objects.requireNonNull(requireActivity()).getPackageManager();
+                if ((Boolean) newValue) {
+                    mode = PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
                 } else {
-                    PackageManager packageManager = Objects.requireNonNull(requireActivity()).getPackageManager();
-                    int show = PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
-                    packageManager.setComponentEnabledSetting(new ComponentName(requireActivity(), "miui.statusbar.lyric.launcher"), show, PackageManager.DONT_KILL_APP);
+                    mode = PackageManager.COMPONENT_ENABLED_STATE_ENABLED;
                 }
+                packageManager.setComponentEnabledSetting(new ComponentName(requireActivity(), "miui.statusbar.lyric.launcher"), mode, PackageManager.DONT_KILL_APP);
                 config.setHideLauncherIcon((Boolean) newValue);
-
                 return true;
             });
+
             // 歌词总开关
             CheckBoxPreference lyricService = findPreference("lyricService");
             assert lyricService != null;
             lyricService.setChecked(config.getLyricService());
             lyricService.setOnPreferenceChangeListener((preference, newValue) -> {
-                lyricService.setDefaultValue(newValue);
                 config.setLyricService((Boolean) newValue);
                 return true;
             });
@@ -83,9 +79,10 @@ public class MainActivity extends AppCompatActivity {
             // 歌词宽度
             EditTextPreference lyricWidth = findPreference("lyricWidth");
             assert lyricWidth != null;
-            lyricWidth.setSummary(config.getLyricWidth() + "%");
             if (config.getLyricWidth() == -1) {
                 lyricWidth.setSummary("自适应");
+            } else {
+                lyricWidth.setSummary(config.getLyricWidth() + "%");
             }
             lyricWidth.setDialogMessage("(-1~100，-1为自适应)，当前:" + lyricWidth.getSummary());
             lyricWidth.setOnPreferenceChangeListener((preference, newValue) -> {
@@ -193,40 +190,16 @@ public class MainActivity extends AppCompatActivity {
             });
 
             // 图标反色
-            ListPreference iconColor = findPreference("iconColor");
+            CheckBoxPreference iconColor = findPreference("iconAutoColor");
             assert iconColor != null;
-            strArr = new String[3];
-            strArr[0] = "关闭";
-            strArr[1] = "白色图标";
-            strArr[2] = "黑色图标";
-            iconColor.setEntries(strArr);
-            iconColor.setEntryValues(strArr);
-            switch (config.getIconColor()) {
-                case "off":
-                    iconColor.setSummary(strArr[0]);
-                    break;
-                case "white":
-                    iconColor.setSummary(strArr[1]);
-                    break;
-                case "black":
-                    iconColor.setSummary(strArr[2]);
-                    break;
+            if (config.getIconAutoColor()) {
+                iconColor.setSummary(strArr[1]);
+            } else {
+                iconColor.setSummary(strArr[0]);
             }
             iconColor.setOnPreferenceChangeListener((preference, newValue) ->
-
             {
-                switch (newValue.toString()) {
-                    case "关闭":
-                        config.setIconColor("off");
-                        break;
-                    case "白色图标":
-                        config.setIconColor("white");
-                        break;
-                    case "黑色图标":
-                        config.setIconColor("black");
-                        break;
-                }
-                iconColor.setSummary(newValue.toString());
+                config.setIconAutoColor((boolean) newValue);
                 return true;
             });
 
@@ -377,17 +350,6 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
-        private void checkPermission() {
-            if (ContextCompat.checkSelfPermission(requireActivity(), "android.permission.WRITE_EXTERNAL_STORAGE") != 0) {
-                if (ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), "android.permission.WRITE_EXTERNAL_STORAGE")) {
-                    Toast.makeText(requireActivity(), "请开通相关权限，否则无法正常使用本应用！", Toast.LENGTH_SHORT).show();
-                }
-                String[] strArr = new String[1];
-                strArr[0] = "android.permission.WRITE_EXTERNAL_STORAGE";
-                ActivityCompat.requestPermissions(requireActivity(), strArr, 1);
-            }
 
-
-        }
     }
 }

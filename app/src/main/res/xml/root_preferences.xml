@@ -39,11 +39,11 @@
             android:defaultValue="开启"
             android:summary="开启"/>
 
-    <ListPreference
-            android:title="反色模式"
-            android:key="iconColor"
-            android:defaultValue="关闭"
-            android:summary="关闭"/>
+    <CheckBoxPreference
+            android:title="图标自动反色"
+            android:key="iconAutoColor"
+            android:defaultValue="true"
+            android:summary=""/>
 
     <PreferenceCategory
             android:title="高级设置"/>

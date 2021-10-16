@@ -222,19 +222,19 @@ public class Config {
         }
     }
 
-    public void setIconColor(String str) {
+    public void setIconAutoColor(Boolean bool) {
         try {
-            this.config.put("IconColor", str);
+            this.config.put("IconAutoColor", bool);
             setConfig(this.config.toString());
         } catch (JSONException ignored) {
         }
     }
 
-    public String getIconColor() {
+    public Boolean getIconAutoColor() {
         try {
-            return (String) this.config.get("IconColor");
+            return (Boolean) this.config.get("IconAutoColor");
         } catch (JSONException e) {
-            return "off";
+            return true;
         }
     }
 }

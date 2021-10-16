@@ -1,5 +1,6 @@
 package miui.statusbar.lyric;
 
+import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
@@ -10,6 +11,8 @@ import android.os.*;
 import android.util.Log;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 import de.robv.android.xposed.XposedBridge;
 import org.json.JSONException;
@@ -50,6 +53,17 @@ public class Utils {
         }
     }
 
+    public static void checkPermission(Activity activity) {
+        if (ContextCompat.checkSelfPermission(activity, "android.permission.WRITE_EXTERNAL_STORAGE") != 0) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(activity, "android.permission.WRITE_EXTERNAL_STORAGE")) {
+                Toast.makeText(activity, "请开通相关权限，否则无法正常使用本应用！", Toast.LENGTH_SHORT).show();
+            }
+            String[] strArr = new String[1];
+            strArr[0] = "android.permission.WRITE_EXTERNAL_STORAGE";
+            ActivityCompat.requestPermissions(activity, strArr, 1);
+        }
+    }
+
     public static void init() {
         File file = new File(Utils.PATH);
         File file2 = new File(Utils.PATH + "Config.json");
@@ -66,7 +80,7 @@ public class Utils {
                 config.setLyricMaxWidth(-1);
                 config.setLyricColor("");
                 config.setIcon(true);
-                config.setIconColor("off");
+                config.setIconAutoColor(true);
                 config.setLyricAutoOff(true);
                 config.setHideNoticeIcon(false);
                 config.setHideNetSpeed(true);
