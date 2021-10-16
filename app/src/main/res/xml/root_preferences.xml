@@ -1,7 +1,8 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
                   xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <CheckBoxPreference
+
+    <SwitchPreference
             android:title="隐藏桌面图标"
             android:key="hideLauncherIcon"
             android:defaultValue="false"
@@ -9,7 +10,7 @@
     <PreferenceCategory
             android:title="基础设置"/>
 
-    <CheckBoxPreference
+    <SwitchPreference
             android:title="总开关"
             android:key="lyricService"
             android:defaultValue="true"
@@ -19,27 +20,27 @@
             android:title="歌词宽度"
             android:key="lyricWidth"
             android:defaultValue="-1"
-            android:summary="-1"/>
+            android:summary="自适应"/>
 
     <EditTextPreference
             android:title="歌词自适应最大宽度"
             android:key="lyricMaxWidth"
             android:defaultValue="-1"
-            android:summary="-1"/>
+            android:summary="关闭"/>
 
     <EditTextPreference
             android:title="歌词颜色"
             android:key="lyricColour"
-            android:defaultValue="关闭"
-            android:summary="关闭"/>
+            android:defaultValue="自适应"
+            android:summary="自适应"/>
 
-    <CheckBoxPreference
+    <SwitchPreference
             android:title="歌词图标"
             android:key="lyricIcon"
             android:defaultValue="true"
             android:summary=""/>
 
-    <CheckBoxPreference
+    <SwitchPreference
             android:title="图标自动反色"
             android:key="iconAutoColor"
             android:defaultValue="true"
@@ -48,31 +49,31 @@
     <PreferenceCategory
             android:title="高级设置"/>
 
-    <CheckBoxPreference
+    <SwitchPreference
             android:title="歌曲暂停关闭歌词"
             android:key="lyricOff"
             android:defaultValue="true"
             android:summary=""/>
 
-    <CheckBoxPreference
+    <SwitchPreference
             android:title="隐藏通知图标"
             android:key="hideNoticeIcon"
             android:defaultValue="false"
             android:summary="自动隐藏通知图标"/>
 
-    <CheckBoxPreference
+    <SwitchPreference
             android:title="隐藏实时网速"
             android:key="hideNetWork"
             android:defaultValue="true"
             android:summary="自动隐藏实时网速"/>
 
-    <CheckBoxPreference
+    <SwitchPreference
             android:title="隐藏锁屏运营商名称"
             android:key="hideCUK"
             android:defaultValue="false"
             android:summary="自动隐藏锁屏运营商名称"/>
 
-    <CheckBoxPreference
+    <SwitchPreference
             android:title="Debug模式"
             android:key="debug"
             android:defaultValue="false"

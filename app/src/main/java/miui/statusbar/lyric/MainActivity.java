@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
             config = new Config();
 
             // 隐藏桌面图标
-            CheckBoxPreference hideIcons = findPreference("hideLauncherIcon");
+            SwitchPreference hideIcons = findPreference("hideLauncherIcon");
             assert hideIcons != null;
             hideIcons.setChecked(config.getHideLauncherIcon());
             hideIcons.setOnPreferenceChangeListener((preference, newValue) -> {
@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
             });
 
             // 歌词总开关
-            CheckBoxPreference lyricService = findPreference("lyricService");
+            SwitchPreference lyricService = findPreference("lyricService");
             assert lyricService != null;
             lyricService.setChecked(config.getLyricService());
             lyricService.setOnPreferenceChangeListener((preference, newValue) -> {
@@ -141,25 +141,23 @@ public class MainActivity extends AppCompatActivity {
             assert lyricColour != null;
             lyricColour.setSummary(config.getLyricColor());
             if (config.getLyricColor().equals("off")) {
-                lyricColour.setSummary("关闭");
-                lyricColour.setDialogMessage("请输入16进制颜色代码，例如: #C0C0C0，目前：关闭");
-            } else {
-                lyricColour.setSummary(config.getLyricColor());
-                lyricColour.setDialogMessage("请输入16进制颜色代码，例如: #C0C0C0，目前：" + config.getLyricColor());
+                lyricColour.setSummary("自适应");
             }
-            lyricColour.setOnPreferenceChangeListener((preference, newValue) ->
-
-            {
-                if (newValue.toString().equals("") | newValue.toString().equals("关闭")) {
+            lyricColour.setDefaultValue(String.valueOf(config.getLyricColor()));
+            lyricColour.setDialogMessage("请输入16进制颜色代码，例如: #C0C0C0，目前：" + config.getLyricColor());
+            lyricColour.setOnPreferenceChangeListener((preference, newValue) -> {
+                String value = newValue.toString().replaceAll(" ", "");
+                if (value.equals("") | value.equals("关闭") | value.equals("自适应")) {
                     config.setLyricColor("off");
                 } else {
                     try {
                         Color.parseColor(newValue.toString());
-                        lyricColour.setSummary(newValue.toString());
                         config.setLyricColor(newValue.toString());
+                        lyricColour.setSummary(newValue.toString());
                     } catch (Exception e) {
-                        Toast.makeText(requireContext(), "颜色代码不正确!", Toast.LENGTH_SHORT).show();
                         config.setLyricColor("off");
+                        lyricColour.setSummary("自适应");
+                        Toast.makeText(requireContext(), "颜色代码不正确!", Toast.LENGTH_SHORT).show();
                     }
                 }
                 return true;
@@ -167,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
 
 
             // 隐藏桌面图标
-            CheckBoxPreference icon = findPreference("lyricIcon");
+            SwitchPreference icon = findPreference("lyricIcon");
             assert icon != null;
             icon.setChecked(config.getIcon());
             icon.setOnPreferenceChangeListener((preference, newValue) -> {
@@ -177,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
 
 
             // 图标反色
-            CheckBoxPreference iconColor = findPreference("iconAutoColor");
+            SwitchPreference iconColor = findPreference("iconAutoColor");
             assert iconColor != null;
             if (config.getIconAutoColor()) {
                 iconColor.setSummary("开启");
@@ -191,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
             });
 
             // 暂停关闭歌词
-            CheckBoxPreference lyricOff = findPreference("lyricOff");
+            SwitchPreference lyricOff = findPreference("lyricOff");
             assert lyricOff != null;
             lyricOff.setChecked(config.getLyricAutoOff());
             lyricOff.setOnPreferenceChangeListener((preference, newValue) ->
@@ -202,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
             });
 
             // 隐藏通知图标
-            CheckBoxPreference hideNoticeIcon = findPreference("hideNoticeIcon");
+            SwitchPreference hideNoticeIcon = findPreference("hideNoticeIcon");
             assert hideNoticeIcon != null;
             hideNoticeIcon.setChecked(config.getHideNoticeIcon());
             hideNoticeIcon.setOnPreferenceChangeListener((preference, newValue) ->
@@ -213,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
             });
 
             // 隐藏实时网速
-            CheckBoxPreference hideNetWork = findPreference("hideNetWork");
+            SwitchPreference hideNetWork = findPreference("hideNetWork");
             assert hideNetWork != null;
             hideNetWork.setChecked(config.getHideNetSpeed());
             hideNetWork.setOnPreferenceChangeListener((preference, newValue) ->
@@ -224,7 +222,7 @@ public class MainActivity extends AppCompatActivity {
             });
 
             // 隐藏运营商名称
-            CheckBoxPreference hideCUK = findPreference("hideCUK");
+            SwitchPreference hideCUK = findPreference("hideCUK");
             assert hideCUK != null;
             hideCUK.setChecked(config.getHideCUK());
             hideCUK.setOnPreferenceChangeListener((preference, newValue) ->
@@ -234,7 +232,7 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             });
             // Debug模式
-            CheckBoxPreference debug = findPreference("debug");
+            SwitchPreference debug = findPreference("debug");
             assert debug != null;
             debug.setChecked(config.getDebug());
             debug.setOnPreferenceChangeListener((preference, newValue) ->
