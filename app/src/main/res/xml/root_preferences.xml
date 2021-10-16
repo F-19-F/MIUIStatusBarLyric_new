@@ -33,11 +33,11 @@
             android:defaultValue="关闭"
             android:summary="关闭"/>
 
-    <ListPreference
-            android:title="图标"
-            android:key="icon"
-            android:defaultValue="开启"
-            android:summary="开启"/>
+    <CheckBoxPreference
+            android:title="歌词图标"
+            android:key="lyricIcon"
+            android:defaultValue="true"
+            android:summary=""/>
 
     <CheckBoxPreference
             android:title="图标自动反色"

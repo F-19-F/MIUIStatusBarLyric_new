@@ -140,9 +140,7 @@ public class MainActivity extends AppCompatActivity {
             EditTextPreference lyricColour = findPreference("lyricColour");
             assert lyricColour != null;
             lyricColour.setSummary(config.getLyricColor());
-            if (config.getLyricColor().
-
-                    equals("off")) {
+            if (config.getLyricColor().equals("off")) {
                 lyricColour.setSummary("关闭");
                 lyricColour.setDialogMessage("请输入16进制颜色代码，例如: #C0C0C0，目前：关闭");
             } else {
@@ -167,44 +165,26 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             });
 
-            // 图标
-            ListPreference icon = findPreference("icon");
-            assert icon != null;
-            String[] strArr = new String[2];
-            strArr[0] = "关闭";
-            strArr[1] = "开启";
-            icon.setEntries(strArr);
-            icon.setEntryValues(strArr);
-            if (config.getIcon()) {
-                icon.setSummary(strArr[1]);
-            } else {
-                icon.setSummary(strArr[0]);
-            }
-            icon.setOnPreferenceChangeListener((preference, newValue) ->
 
-            {
-                switch (newValue.toString()) {
-                    case "关闭":
-                        config.setIcon(false);
-                        break;
-                    case "开启":
-                        config.setIcon(true);
-                        break;
-                }
-                icon.setSummary(newValue.toString());
+            // 隐藏桌面图标
+            CheckBoxPreference icon = findPreference("lyricIcon");
+            assert icon != null;
+            icon.setChecked(config.getIcon());
+            icon.setOnPreferenceChangeListener((preference, newValue) -> {
+                config.setIcon((Boolean) newValue);
                 return true;
             });
+
 
             // 图标反色
             CheckBoxPreference iconColor = findPreference("iconAutoColor");
             assert iconColor != null;
             if (config.getIconAutoColor()) {
-                iconColor.setSummary(strArr[1]);
+                iconColor.setSummary("开启");
             } else {
-                iconColor.setSummary(strArr[0]);
+                iconColor.setSummary("关闭");
             }
             iconColor.setOnPreferenceChangeListener((preference, newValue) ->
-
             {
                 config.setIconAutoColor((boolean) newValue);
                 return true;

@@ -78,7 +78,7 @@ public class Utils {
                 config.setLyricService(true);
                 config.setLyricWidth(-1);
                 config.setLyricMaxWidth(-1);
-                config.setLyricColor("");
+                config.setLyricColor("off");
                 config.setIcon(true);
                 config.setIconAutoColor(true);
                 config.setLyricAutoOff(true);
