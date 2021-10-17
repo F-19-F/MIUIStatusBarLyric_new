@@ -53,6 +53,24 @@ public class MainActivity extends AppCompatActivity {
             Utils.initIcon(requireContext());
             config = new Config();
 
+            SharedPreferences preferences = requireActivity().getSharedPreferences("protocol", 0); // 存在则打开它，否则创建新的Preferences
+            boolean count = preferences.getBoolean("protocol", false); // 取出数据
+            if (count) {
+                new AlertDialog.Builder(requireActivity())
+                        .setTitle("警告")
+                        .setMessage("本软件发布不久，可能会有许多\n使用本模块造成的破坏，，一律不负责\n继续代表同意")
+                        .setNegativeButton("继续", (dialog, which) -> {
+                            SharedPreferences.Editor a = preferences.edit(); // 让preferences处于编辑状态
+                            a.putBoolean("protocol", true); //); // 存入数据
+                            a.apply(); // 提交修改
+                        })
+                        .setPositiveButton("不同意", (dialog, which) -> {
+                            requireActivity().finish();
+                        })
+                        .create()
+                        .show();
+            }
+
 
             // 隐藏桌面图标
             SwitchPreference hideIcons = findPreference("hideLauncherIcon");
@@ -162,6 +180,7 @@ public class MainActivity extends AppCompatActivity {
                 String value = newValue.toString().replaceAll(" ", "");
                 if (value.equals("") | value.equals("关闭") | value.equals("自适应")) {
                     config.setLyricColor("off");
+                    lyricColour.setSummary("自适应");
                 } else {
                     try {
                         Color.parseColor(newValue.toString());
