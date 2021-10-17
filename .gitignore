@@ -253,3 +253,4 @@ fabric.properties
 !/.idea/runConfigurations.xml
 !/.idea/misc.xml
 !/.idea/
+app/release/output-metadata.json

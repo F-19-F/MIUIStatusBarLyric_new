@@ -1,6 +1,6 @@
 # MIUI状态栏歌词
 
-支持MIUI12以后的MIUI
+__支持MIUI12以后的MIUI__
 
 #### 支持的音乐软件版本
 
@@ -12,3 +12,7 @@
 ### 下载
 
 [Releases](https://github.com/577fkj/MIUIStatusBarLyric_new/releases)
+
+### 联系方式
+
+[电报群](https://t.me/MIUIStatusBatLyric)

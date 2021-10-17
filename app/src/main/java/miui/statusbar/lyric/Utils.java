@@ -76,12 +76,13 @@ public class Utils {
                 file2.createNewFile();
                 config.setHideLauncherIcon(false);
                 config.setLyricService(true);
+                config.setLyricAutoOff(true);
                 config.setLyricWidth(-1);
                 config.setLyricMaxWidth(-1);
                 config.setLyricColor("off");
                 config.setIcon(true);
+                config.setIconPath(PATH);
                 config.setIconAutoColor(true);
-                config.setLyricAutoOff(true);
                 config.setHideNoticeIcon(false);
                 config.setHideNetSpeed(true);
                 config.setHideCUK(false);
@@ -93,21 +94,21 @@ public class Utils {
     }
 
     public static void initIcon(Context context) {
-        if (!new File(Utils.PATH, "kugou.png").exists()) {
-            copyAssets(context, "icon/kugou.png", Utils.PATH + "kugou.png");
+        if (!new File(new Config().getIconPath(), "kugou.png").exists()) {
+            copyAssets(context, "icon/kugou.png", new Config().getIconPath() + "kugou.png");
         }
-        if (!new File(Utils.PATH, "netease.png").exists()) {
-            copyAssets(context, "icon/netease.png", Utils.PATH + "netease.png");
+        if (!new File(new Config().getIconPath(), "netease.png").exists()) {
+            copyAssets(context, "icon/netease.png", new Config().getIconPath() + "netease.png");
         }
-        if (!new File(Utils.PATH, "qqmusic.png").exists()) {
-            copyAssets(context, "icon/qqmusic.png", Utils.PATH + "qqmusic.png");
+        if (!new File(new Config().getIconPath(), "qqmusic.png").exists()) {
+            copyAssets(context, "icon/qqmusic.png", new Config().getIconPath() + "qqmusic.png");
         }
-        if (!new File(Utils.PATH, "kuwo.png").exists()) {
-            copyAssets(context, "icon/kuwo.png", Utils.PATH + "kuwo.png");
+        if (!new File(new Config().getIconPath(), "kuwo.png").exists()) {
+            copyAssets(context, "icon/kuwo.png", new Config().getIconPath() + "kuwo.png");
         }
-        if (!new File(Utils.PATH, ".nomedia").exists()) {
+        if (!new File(new Config().getIconPath(), ".nomedia").exists()) {
             try {
-                new File(Utils.PATH, ".nomedia").createNewFile();
+                new File(new Config().getIconPath(), ".nomedia").createNewFile();
             } catch (IOException e) {
                 e.printStackTrace();
             }

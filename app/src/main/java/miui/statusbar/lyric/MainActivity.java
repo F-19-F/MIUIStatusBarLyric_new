@@ -11,13 +11,16 @@ import android.widget.Toast;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.preference.*;
+import androidx.preference.EditTextPreference;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.SwitchPreference;
+import com.byyang.choose.ChooseFileUtils;
 
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.OutputStream;
 import java.util.Objects;
-
 
 public class MainActivity extends AppCompatActivity {
 
@@ -50,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
             Utils.initIcon(requireContext());
             config = new Config();
 
+
             // 隐藏桌面图标
             SwitchPreference hideIcons = findPreference("hideLauncherIcon");
             assert hideIcons != null;
@@ -73,6 +77,16 @@ public class MainActivity extends AppCompatActivity {
             lyricService.setChecked(config.getLyricService());
             lyricService.setOnPreferenceChangeListener((preference, newValue) -> {
                 config.setLyricService((Boolean) newValue);
+                return true;
+            });
+
+            // 暂停关闭歌词
+            SwitchPreference lyricOff = findPreference("lyricOff");
+            assert lyricOff != null;
+            lyricOff.setChecked(config.getLyricAutoOff());
+            lyricOff.setOnPreferenceChangeListener((preference, newValue) ->
+            {
+                config.setLyricAutoOff((Boolean) newValue);
                 return true;
             });
 
@@ -172,6 +186,42 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             });
 
+            // 图标路径
+            Preference iconPath = findPreference("iconPath");
+            assert iconPath != null;
+            iconPath.setSummary(config.getIconPath());
+            if (config.getIconPath().equals(Utils.PATH)) {
+                iconPath.setSummary("默认路径");
+            }
+            iconPath.setOnPreferenceClickListener(((preference) -> {
+                new AlertDialog.Builder(requireActivity())
+                        .setTitle("图标路径")
+                        .setNegativeButton("恢复默认路径", (dialog, which) -> {
+                            iconPath.setSummary("默认路径");
+                            config.setIconPath(Utils.PATH);
+                            Utils.initIcon(requireActivity());
+                        })
+                        .setPositiveButton("选择新路径", (dialog, which) -> {
+                            ChooseFileUtils chooseFileUtils = new ChooseFileUtils(requireActivity());
+                            chooseFileUtils.chooseFolder(new ChooseFileUtils.ChooseListener() {
+                                @Override
+                                public void onSuccess(String filePath, Uri uri, Intent intent) {
+                                    super.onSuccess(filePath, uri, intent);
+                                    config.setIconPath(filePath);
+                                    iconPath.setSummary(filePath);
+                                    if (config.getIconPath().equals(Utils.PATH)) {
+                                        iconPath.setSummary("默认路径");
+                                    }
+                                    Utils.initIcon(requireActivity());
+                                }
+                            });
+                        })
+                        .create()
+                        .show();
+
+
+                return true;
+            }));
 
             // 图标反色
             SwitchPreference iconColor = findPreference("iconAutoColor");
@@ -181,30 +231,17 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 iconColor.setSummary("关闭");
             }
-            iconColor.setOnPreferenceChangeListener((preference, newValue) ->
-            {
+            iconColor.setOnPreferenceChangeListener((preference, newValue) -> {
                 config.setIconAutoColor((boolean) newValue);
                 return true;
             });
 
-            // 暂停关闭歌词
-            SwitchPreference lyricOff = findPreference("lyricOff");
-            assert lyricOff != null;
-            lyricOff.setChecked(config.getLyricAutoOff());
-            lyricOff.setOnPreferenceChangeListener((preference, newValue) ->
-
-            {
-                config.setLyricAutoOff((Boolean) newValue);
-                return true;
-            });
 
             // 隐藏通知图标
             SwitchPreference hideNoticeIcon = findPreference("hideNoticeIcon");
             assert hideNoticeIcon != null;
             hideNoticeIcon.setChecked(config.getHideNoticeIcon());
-            hideNoticeIcon.setOnPreferenceChangeListener((preference, newValue) ->
-
-            {
+            hideNoticeIcon.setOnPreferenceChangeListener((preference, newValue) -> {
                 config.setHideNoticeIcon((Boolean) newValue);
                 return true;
             });
@@ -213,9 +250,7 @@ public class MainActivity extends AppCompatActivity {
             SwitchPreference hideNetWork = findPreference("hideNetWork");
             assert hideNetWork != null;
             hideNetWork.setChecked(config.getHideNetSpeed());
-            hideNetWork.setOnPreferenceChangeListener((preference, newValue) ->
-
-            {
+            hideNetWork.setOnPreferenceChangeListener((preference, newValue) -> {
                 config.setHideNetSpeed((Boolean) newValue);
                 return true;
             });
@@ -224,28 +259,24 @@ public class MainActivity extends AppCompatActivity {
             SwitchPreference hideCUK = findPreference("hideCUK");
             assert hideCUK != null;
             hideCUK.setChecked(config.getHideCUK());
-            hideCUK.setOnPreferenceChangeListener((preference, newValue) ->
-
-            {
+            hideCUK.setOnPreferenceChangeListener((preference, newValue) -> {
                 config.setHideCUK((Boolean) newValue);
                 return true;
             });
+
             // Debug模式
             SwitchPreference debug = findPreference("debug");
             assert debug != null;
             debug.setChecked(config.getDebug());
-            debug.setOnPreferenceChangeListener((preference, newValue) ->
-
-            {
+            debug.setOnPreferenceChangeListener((preference, newValue) -> {
                 config.setDebug((Boolean) newValue);
                 return true;
             });
+
             // 重启SystemUI
             Preference reSystemUI = findPreference("restartUI");
             assert reSystemUI != null;
-            reSystemUI.setOnPreferenceClickListener(((preference) ->
-
-            {
+            reSystemUI.setOnPreferenceClickListener(((preference) -> {
                 new AlertDialog.Builder(requireActivity())
                         .setTitle("确定重启系统界面吗？")
                         .setMessage("若使用中突然发现不能使用，可尝试重启系统界面。")
@@ -272,9 +303,7 @@ public class MainActivity extends AppCompatActivity {
             // 重置插件
             Preference reset = findPreference("reset");
             assert reset != null;
-            reset.setOnPreferenceClickListener((preference) ->
-
-            {
+            reset.setOnPreferenceClickListener((preference) -> {
                 new AlertDialog.Builder(requireActivity())
                         .setTitle("是否要重置模块")
                         .setMessage("模块没问题请不要随意重置")
@@ -297,15 +326,14 @@ public class MainActivity extends AppCompatActivity {
             //版本介绍
             Preference verExplain = findPreference("ver_explain");
             assert verExplain != null;
-            verExplain.setSummary("当前版本: " + Utils.getLocalVersionCode(
-
-                    requireContext()));
-            verExplain.setOnPreferenceClickListener((preference) ->
-
-            {
+            verExplain.setSummary("当前版本: " + Utils.getLocalVersionCode(requireContext()));
+            verExplain.setOnPreferenceClickListener((preference) -> {
                 new AlertDialog.Builder(requireActivity())
                         .setTitle("当前版本[" + Utils.getLocalVersionCode(requireContext()) + "]适用于")
-                        .setMessage("酷狗音乐:v10.8.4\n酷我音乐:v9.4.6.2\n网易云音乐:v8.5.40\nQQ音乐:v10.17.0.11")
+                        .setMessage("酷狗音乐:v10.8.4 （需打开蓝牙歌词）\n" +
+                                "酷我音乐:v9.4.6.2 （需打开蓝牙歌词）\n" +
+                                "网易云音乐:v8.5.40 （完美使用，无需操作）\n" +
+                                "QQ音乐:v10.17.0.11 （需打开蓝牙歌词和戴耳机）\n")
                         .setPositiveButton("确定", null)
                         .create()
                         .show();
@@ -316,9 +344,7 @@ public class MainActivity extends AppCompatActivity {
             // 作者主页
             Preference author = findPreference("author");
             assert author != null;
-            author.setOnPreferenceClickListener((preference) ->
-
-            {
+            author.setOnPreferenceClickListener((preference) -> {
                 new AlertDialog.Builder(requireActivity())
                         .setTitle("作者主页")
                         .setNegativeButton("577fkj", (dialog, which) -> {

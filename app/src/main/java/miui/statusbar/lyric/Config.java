@@ -101,14 +101,13 @@ public class Config {
         }
     }
 
-    public  int getLyricMaxWidth() {
+    public int getLyricMaxWidth() {
         try {
             return (Integer) this.config.get("LyricMaxWidth");
         } catch (JSONException e) {
             return -1;
         }
     }
-
 
     public void setLyricAutoOff(Boolean bool) {
         try {
@@ -235,6 +234,22 @@ public class Config {
             return (Boolean) this.config.get("IconAutoColor");
         } catch (JSONException e) {
             return true;
+        }
+    }
+
+    public void setIconPath(String str) {
+        try {
+            this.config.put("IconPath", str);
+            setConfig(this.config.toString());
+        } catch (JSONException ignored) {
+        }
+    }
+
+    public String getIconPath() {
+        try {
+            return (String) this.config.get("IconPath");
+        } catch (JSONException e) {
+            return Utils.PATH;
         }
     }
 }

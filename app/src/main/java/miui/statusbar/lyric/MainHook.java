@@ -55,7 +55,7 @@ public class MainHook implements IXposedHookLoadPackage {
             if (intent.getAction().equals("Lyric_Server")) {
                 lyric = intent.getStringExtra("Lyric_Data");
                 if (new Config().getIcon()) {
-                    iconPath = Utils.PATH + intent.getStringExtra("Lyric_Icon") + ".png";
+                    iconPath = new Config().getIconPath() + intent.getStringExtra("Lyric_Icon") + ".png";
                 } else {
                     iconPath = "";
                 }
